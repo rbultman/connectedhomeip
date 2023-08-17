@@ -44,15 +44,55 @@ public:
     CHIP_ERROR Read(const ConcreteReadAttributePath & aPath, AttributeValueEncoder & aEncoder) override;
 
 private:
-    static constexpr uint16_t ClusterRevision = 1;
+    static constexpr uint16_t ClusterRevision = 2;
 
+    CHIP_ERROR ReadTagListAttribute(EndpointId endpoint, AttributeValueEncoder & aEncoder);
     CHIP_ERROR ReadPartsAttribute(EndpointId endpoint, AttributeValueEncoder & aEncoder);
     CHIP_ERROR ReadDeviceAttribute(EndpointId endpoint, AttributeValueEncoder & aEncoder);
     CHIP_ERROR ReadClientServerAttribute(EndpointId endpoint, AttributeValueEncoder & aEncoder, bool server);
     CHIP_ERROR ReadClusterRevision(EndpointId endpoint, AttributeValueEncoder & aEncoder);
+    bool HasFeature(EndpointId endpoint, Feature feature);
 };
 
 constexpr uint16_t DescriptorAttrAccess::ClusterRevision;
+
+bool DescriptorAttrAccess::HasFeature(EndpointId endpoint, Feature feature)
+{
+    bool success;
+    uint32_t featureMap;
+    success = (Attributes::FeatureMap::Get(endpoint, &featureMap) == EMBER_ZCL_STATUS_SUCCESS);
+
+    return success ? ((featureMap & to_underlying(feature)) != 0) : false;
+}
+
+CHIP_ERROR DescriptorAttrAccess::ReadTagListAttribute(EndpointId endpoint, AttributeValueEncoder & aEncoder)
+{
+    CHIP_ERROR err = CHIP_NO_ERROR;
+
+    if (HasFeature(endpointId, Feature::kTagList)) {
+        err = aEncoder.EncodeList([&endpoint](const auto & encoder) -> CHIP_ERROR {
+            Descriptor::Structs::SemanticTagStruct::Type semanticTagStruct;
+            CHIP_ERROR err2;
+
+            auto semanticTagList = emberAfDeviceTypeListFromEndpoint(endpoint, err2);
+            ReturnErrorOnFailure(err2);
+
+            for (auto & semanticTag : semanticTagList)
+            {
+                semanticTagStruct.mfgCode = semanticTag.mfgCode;
+                semanticTagStruct.namespaceID = semanticTag.namespaceID;
+                semanticTagStruct.tag = semanticTag.tag;
+                semanticTagStruct.label = semanticTag.label;
+                ReturnErrorOnFailure(encoder.Encode(semanticTagStruct));
+            }
+
+            return CHIP_NO_ERROR;
+        });
+
+    }
+
+    return err;
+}
 
 CHIP_ERROR DescriptorAttrAccess::ReadPartsAttribute(EndpointId endpoint, AttributeValueEncoder & aEncoder)
 {
@@ -192,6 +232,9 @@ CHIP_ERROR DescriptorAttrAccess::Read(const ConcreteReadAttributePath & aPath, A
     }
     case ClusterRevision::Id: {
         return ReadClusterRevision(aPath.mEndpointId, aEncoder);
+    }
+    case TagList::Id: {
+        return ReadTagListAttribute(aPath.mEndpointId, aEncoder);
     }
     default: {
         break;
