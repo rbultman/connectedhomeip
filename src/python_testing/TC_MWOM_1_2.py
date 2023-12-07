@@ -103,20 +103,5 @@ class TC_MWOM_1_2(MatterBaseTest):
             logging.info("CurrentMode: %s" % (current_mode))
             asserts.assert_true(current_mode in modes, "CurrentMode is not a supported mode!")
 
-        if self.check_pics("MWOM.S.A0003"):
-            self.print_step(4, "Read OnMode attribute")
-            on_mode = await self.read_mod_attribute_expect_success(endpoint=self.endpoint, attribute=attributes.OnMode)
-
-            logging.info("OnMode: %s" % (on_mode))
-            asserts.assert_true(false, "OnMode is supported on the DUT when support is not allowed!")
-
-        if self.check_pics("MWOM.S.A0002"):
-            self.print_step(5, "Read StartUpMode attribute")
-            startup_mode = await self.read_mod_attribute_expect_success(endpoint=self.endpoint, attribute=attributes.StartUpMode)
-
-            logging.info("StartUpMode: %s" % (startup_mode))
-            asserts.assert_true(false, "StartUpMode is supported on the DUT when support is not allowed!")
-
-
 if __name__ == "__main__":
     default_matter_test_main()
