@@ -81,7 +81,7 @@ tests:
       response:
           constraints:
               type: list
-              contains: [0]
+              excludes: [0]
 
     - label: "Step 7: TH reads from the DUT the GeneratedCommandList attribute."
       command: "readAttribute"
@@ -89,4 +89,4 @@ tests:
       response:
           constraints:
               type: list
-              contains: [1]
+              excludes: [1]
