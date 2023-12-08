@@ -102,5 +102,6 @@ class TC_MWOM_1_2(MatterBaseTest):
             logging.info("CurrentMode: %s" % (current_mode))
             asserts.assert_true(current_mode in modes, "CurrentMode is not a supported mode!")
 
+
 if __name__ == "__main__":
     default_matter_test_main()
