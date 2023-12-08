@@ -20,7 +20,7 @@ PICS:
 
 config:
     nodeId: 0x12344321
-    cluster: "Microwave Oven Mode"
+    cluster: "Microwave Oven Control"
     endpoint: 1
 
 tests:

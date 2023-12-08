@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: 263.1.1. [TC-MWOCTRL-2.1] Primary functionality with DUT as Server
+name: 263.1.1. [TC-MWOCTRL-2.3] Add more time command with DUT as Server
 
 PICS:
     - MWOCTRL.S
-    - "!MWOCTRL.S.A0003"
+    - MWOCTRL.S.C01.Rsp
 
 config:
     nodeId: 0x12344321
@@ -36,29 +36,20 @@ tests:
       command: "readAttribute"
       attribute: "CookTime"
       response:
+          saveAs: CookTimeBegin
           constraints:
               type: elapsed-s
               minValue: 1
               maxValue: 86400
 
-    - label: "Step 3: Read the PowerSetting attribute"
-      command: "readAttribute"
-      attribute: "PowerSetting"
-      response:
-          saveAs: PowerValue
-          constraints:
-              type: int8u
-              minValue: 10
-              maxValue: 100
-
-    - label: "Step 4: Send the SetCookingParameters command"
-      command: "SetCookingParameters"
+    - label: "Step 3: Send the AddMoreTime command"
+      command: "AddMoreTime"
       arguments:
           values:
-              - name: PowerSetting
-                value: 50
+              - name: TimeToAdd
+                value: 10
 
-    - label: "Step 4a: Delay"
+    - label: "Step 3a: Delay"
       cluster: "DelayCommands"
       command: "WaitForMs"
       arguments:
@@ -66,18 +57,11 @@ tests:
               - name: "ms"
                 value: 2000
 
-    - label: "Step 5: Read the power setting"
-      command: "readAttribute"
-      attribute: "PowerSetting"
-      response:
-          constraints:
-              type: int8u
-              value: 50
-
-    - label: "Step 6: Read the CookTime attribute"
+    - label: "Step 4: Read the CookTime attribute"
       command: "readAttribute"
       attribute: "CookTime"
       response:
+          saveAs: CookTimeBegin
           constraints:
               type: elapsed-s
-              value: 60
+              value: "CookTimeBegin + 10"
