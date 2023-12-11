@@ -91,8 +91,6 @@ class TC_MWOM_1_2(MatterBaseTest):
                                         "Found a SupportedModes entry with invalid mode tag value!")
                     if t.value == Clusters.MicrowaveOvenMode.Enums.ModeTag.kNormal:
                         normal_present = True
-                    if t.value == Clusters.MicrowaveOvenMode.Enums.ModeTag.kDefrost:
-                        defrost_present = True
             asserts.assert_true(normal_present, "The Supported Modes does not have an entry of Normal(0x4000)")
 
         if self.check_pics("MWOM.S.A0001"):
