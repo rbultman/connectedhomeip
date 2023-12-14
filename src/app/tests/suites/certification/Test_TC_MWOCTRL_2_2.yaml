@@ -103,14 +103,14 @@ tests:
       command: "readAttribute"
       attribute: "PowerSetting"
       response:
+          value: MinPowerValue
           constraints:
               type: int8u
-              value: MinPowerValue
 
     - label: "Step 9: Read the CookTime attribute"
       command: "readAttribute"
       attribute: "CookTime"
       response:
+          value: 60
           constraints:
               type: elapsed-s
-              value: 60

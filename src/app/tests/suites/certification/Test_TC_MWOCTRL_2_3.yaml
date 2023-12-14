@@ -61,7 +61,6 @@ tests:
       command: "readAttribute"
       attribute: "CookTime"
       response:
-          saveAs: CookTimeBegin
+          value: "CookTimeBegin + 10"
           constraints:
               type: elapsed-s
-              value: "CookTimeBegin + 10"

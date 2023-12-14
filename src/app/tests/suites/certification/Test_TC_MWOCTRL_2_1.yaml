@@ -70,14 +70,14 @@ tests:
       command: "readAttribute"
       attribute: "PowerSetting"
       response:
+          value: 50
           constraints:
               type: int8u
-              value: 50
 
     - label: "Step 6: Read the CookTime attribute"
       command: "readAttribute"
       attribute: "CookTime"
       response:
+          value: 60
           constraints:
               type: elapsed-s
-              value: 60
