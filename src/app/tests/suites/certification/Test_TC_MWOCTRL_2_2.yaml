@@ -16,7 +16,8 @@ name: 263.1.1. [TC-MWOCTRL-2.2] Secondary functionality with DUT as Server
 
 PICS:
     - MWOCTRL.S
-    - MWOCTRL.S.A0003
+    - MWOCTRL.S.F00
+    - "!MWOCTRL.S.A0003"
 
 config:
     nodeId: 0x12344321
@@ -32,66 +33,24 @@ tests:
               - name: "nodeId"
                 value: nodeId
 
-    - label: "Step 2: Read the CookTime attribute"
-      command: "readAttribute"
-      attribute: "CookTime"
-      response:
-          saveAs: CookTimeValue
-          constraints:
-              type: elapsed-s
-              minValue: 1
-              maxValue: 86400
-
-    - label: "Step 3: Read the MinPower attribute"
-      command: "readAttribute"
-      attribute: "MinPower"
-      response:
-          saveAs: MinPowerValue
-          constraints:
-              type: int8u
-              minValue: 1
-              maxValue: 100
-
-    - label: "Step 4: Read the MaxPower attribute"
-      command: "readAttribute"
-      attribute: "MaxPower"
-      response:
-          saveAs: MaxPowerValue
-          constraints:
-              type: int8u
-              minValue: MinPowerValue
-              maxValue: 100
-
-    - label: "Step 5: Read the PowerStep attribute"
-      command: "readAttribute"
-      attribute: "PowerStep"
-      response:
-          saveAs: PowerStepValue
-          constraints:
-              type: int8u
-              minValue: MinPowerValue
-              maxValue: MaxPowerValue
-
-    - label: "Step 6: Read the PowerSetting attribute"
+    - label: "Step 2: Read the PowerSetting attribute"
       command: "readAttribute"
       attribute: "PowerSetting"
       response:
           saveAs: PowerSettingValue
           constraints:
               type: int8u
-              minValue: MinPowerValue
-              maxValue: MaxPowerValue
+              minValue: 10
+              maxValue: 100
 
-    - label: "Step 7: Send the SetCookingParameters command"
+    - label: "Step 3a: Send the SetCookingParameters command"
       command: "SetCookingParameters"
       arguments:
           values:
               - name: PowerSetting
-                value: MinPowerValue
-              - name: CookTime
-                value: 60
+                value: "(PowerSettingValue+10)%100"
 
-    - label: "Step 7a: Delay"
+    - label: "Step 3b: Delay"
       cluster: "DelayCommands"
       command: "WaitForMs"
       arguments:
@@ -99,18 +58,10 @@ tests:
               - name: "ms"
                 value: 2000
 
-    - label: "Step 8: Read the power setting"
+    - label: "Step 4: Read the power setting"
       command: "readAttribute"
       attribute: "PowerSetting"
       response:
-          value: MinPowerValue
+          value: "(PowerSettingValue+10)%100"
           constraints:
               type: int8u
-
-    - label: "Step 9: Read the CookTime attribute"
-      command: "readAttribute"
-      attribute: "CookTime"
-      response:
-          value: 60
-          constraints:
-              type: elapsed-s

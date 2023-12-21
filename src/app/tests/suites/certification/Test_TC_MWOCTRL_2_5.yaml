@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: 263.1.1. [TC-MWOCTRL-2.1] Primary functionality with DUT as Server
+name: 263.1.1. [TC-MWOCTRL-2.5] Add more time command with DUT as Server
 
 PICS:
     - MWOCTRL.S
+    - MWOCTRL.S.C01.Rsp
 
 config:
     nodeId: 0x12344321
@@ -31,33 +32,14 @@ tests:
               - name: "nodeId"
                 value: nodeId
 
-    - label: "Step 2: Read the MaxCookTime attribute"
-      command: "readAttribute"
-      attribute: "MaxCookTime"
-      response:
-          saveAs: MaxCookTime
-          constraints:
-              type: elapsed-s
-              minValue: 1
-              maxValue: 86400
-
-    - label: "Step 3: Read the CookTime attribute"
-      command: "readAttribute"
-      attribute: "CookTime"
-      response:
-          constraints:
-              type: elapsed-s
-              minValue: 1
-              maxValue: MaxCookTime
-
-    - label: "Step 4a: Send the SetCookingParameters command"
+    - label: "Step 2a: Send the SetCookingParameters command"
       command: "SetCookingParameters"
       arguments:
           values:
               - name: CookTime
                 value: 60
 
-    - label: "Step 4b: Delay"
+    - label: "Step 2b: Delay"
       cluster: "DelayCommands"
       command: "WaitForMs"
       arguments:
@@ -65,18 +47,25 @@ tests:
               - name: "ms"
                 value: 2000
 
-    - label: "Step 5: Read the CookTime attribute"
+    - label: "Step 3: Send the AddMoreTime command"
+      command: "AddMoreTime"
+      arguments:
+          values:
+              - name: TimeToAdd
+                value: 30
+
+    - label: "Step 3a: Delay"
+      cluster: "DelayCommands"
+      command: "WaitForMs"
+      arguments:
+          values:
+              - name: "ms"
+                value: 2000
+
+    - label: "Step 4: Read the CookTime attribute"
       command: "readAttribute"
       attribute: "CookTime"
       response:
-          value: 60
+          value: 90
           constraints:
               type: elapsed-s
-
-    - label: "Step 6: Read the WattRating attribute"
-      PICS: MWOCTRL.S.A0008
-      command: "readAttribute"
-      attribute: "WattRating"
-      response:
-          constraints:
-              type: int16u

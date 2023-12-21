@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: 263.1.1. [TC-MWOCTRL-2.3] Add more time command with DUT as Server
+name: 263.1.1. [TC-MWOCTRL-2.3] PWRNUM functionality with DUT as Server
 
 PICS:
     - MWOCTRL.S
-    - MWOCTRL.S.C01.Rsp
+    - MWOCTRL.S.F00
+    - MWOCTRL.S.A0003
 
 config:
     nodeId: 0x12344321
@@ -32,24 +33,54 @@ tests:
               - name: "nodeId"
                 value: nodeId
 
-    - label: "Step 2: Read the CookTime attribute"
+    - label: "Step 2: Read the MinPower attribute"
       command: "readAttribute"
-      attribute: "CookTime"
+      attribute: "MinPower"
       response:
-          saveAs: CookTimeBegin
+          saveAs: MinPowerValue
           constraints:
-              type: elapsed-s
+              type: int8u
               minValue: 1
-              maxValue: 86400
+              maxValue: 100
 
-    - label: "Step 3: Send the AddMoreTime command"
-      command: "AddMoreTime"
+    - label: "Step 3: Read the MaxPower attribute"
+      command: "readAttribute"
+      attribute: "MaxPower"
+      response:
+          saveAs: MaxPowerValue
+          constraints:
+              type: int8u
+              minValue: MinPowerValue
+              maxValue: 100
+
+    - label: "Step 4: Read the PowerStep attribute"
+      command: "readAttribute"
+      attribute: "PowerStep"
+      response:
+          saveAs: PowerStepValue
+          constraints:
+              type: int8u
+              minValue: 1
+              maxValue: MaxPowerValue
+
+    - label: "Step 5: Read the PowerSetting attribute"
+      command: "readAttribute"
+      attribute: "PowerSettingValue"
+      response:
+          saveAs: PowerValue
+          constraints:
+              type: int8u
+              minValue: MinPowerValue
+              maxValue: MaxPowerValue
+
+    - label: "Step 6a: Send the SetCookingParameters command"
+      command: "SetCookingParameters"
       arguments:
           values:
-              - name: TimeToAdd
-                value: 10
+              - name: PowerSetting
+                value: "(PowerValue-MinPowerValue)%(MaxPowerValue-MinPowerValue)+PowerStepValue+MinPowerValue"
 
-    - label: "Step 3a: Delay"
+    - label: "Step 6b: Delay"
       cluster: "DelayCommands"
       command: "WaitForMs"
       arguments:
@@ -57,10 +88,10 @@ tests:
               - name: "ms"
                 value: 2000
 
-    - label: "Step 4: Read the CookTime attribute"
+    - label: "Step 7: Read the power setting"
       command: "readAttribute"
-      attribute: "CookTime"
+      attribute: "PowerSetting"
       response:
-          value: "CookTimeBegin + 10"
+          value: "(PowerValue-MinPowerValue)%(MaxPowerValue-MinPowerValue)+PowerStepValue+MinPowerValue"
           constraints:
-              type: elapsed-s
+              type: int8u
