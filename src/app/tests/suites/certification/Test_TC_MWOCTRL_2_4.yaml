@@ -46,7 +46,7 @@ tests:
       command: "readAttribute"
       attribute: "SelectedWattIndex"
       response:
-          saveAs: SelectedWattIndex
+          saveAs: SelectedWattIndexValue
           constraints:
               type: int8u
               minValue: 0
@@ -57,7 +57,7 @@ tests:
       arguments:
           values:
               - name: WattSettingIndex
-                value: "(SelectedWattIndex+1)%len(SupportedWattsList)"
+                value: "(SelectedWattIndexValue+1)%len(SupportedWattsList)"
 
     - label: "Step 4b: Delay"
       cluster: "DelayCommands"
@@ -71,6 +71,6 @@ tests:
       command: "readAttribute"
       attribute: "SelectedWattIndex"
       response:
-          value: "(SelectedWattIndex+1)%len(SupportedWattsList)"
+          value: "(SelectedWattIndexValue+1)%len(SupportedWattsList)"
           constraints:
               type: int8u

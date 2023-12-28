@@ -68,4 +68,4 @@ tests:
       response:
           value: 90
           constraints:
-              type: elapsed-s
+              type: elapsed_s

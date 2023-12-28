@@ -48,7 +48,7 @@ tests:
       arguments:
           values:
               - name: PowerSetting
-                value: "(PowerSettingValue+10)%100"
+                value: (PowerSettingValue+10)%100
 
     - label: "Step 3b: Delay"
       cluster: "DelayCommands"
@@ -62,6 +62,6 @@ tests:
       command: "readAttribute"
       attribute: "PowerSetting"
       response:
-          value: "(PowerSettingValue+10)%100"
+          value: (PowerSettingValue+10)%100
           constraints:
               type: int8u

@@ -35,7 +35,7 @@ tests:
       command: "readAttribute"
       attribute: "MaxCookTime"
       response:
-          saveAs: MaxCookTime
+          saveAs: MaxCookTimeValue
           constraints:
               type: elapsed-s
               minValue: 1
@@ -48,7 +48,7 @@ tests:
           constraints:
               type: elapsed-s
               minValue: 1
-              maxValue: MaxCookTime
+              maxValue: MaxCookTimeValue
 
     - label: "Step 4a: Send the SetCookingParameters command"
       command: "SetCookingParameters"
