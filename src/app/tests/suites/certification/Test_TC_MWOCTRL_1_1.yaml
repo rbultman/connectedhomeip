@@ -68,6 +68,16 @@ tests:
           constraints:
               type: bitmap32
 
+    - label: "Step 3c: Check for PWRLMTS feature support"
+      command: "readAttribute"
+      attribute: "FeatureMap"
+      PICS: MWOCTRL.S.F02
+      response:
+          saveAs: wattsSupported
+          constraints:
+              type: bitmap32
+              hasMasksSet: [0x4]
+
     - label: "Step 4a: Read the global attribute: AttributeList"
       PICS: PICS_EVENT_LIST_ENABLED
       command: "readAttribute"
@@ -96,7 +106,7 @@ tests:
               contains: [2]
 
     - label: "Step 4d: Check for optional attribute support for PWRNUM feature"
-      PICS: MWOCTRL.S.F00 & MWOCTRL.S.A0003
+      PICS: MWOCTRL.S.F02
       command: "readAttribute"
       attribute: "AttributeList"
       response:
