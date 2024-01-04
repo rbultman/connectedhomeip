@@ -81,8 +81,12 @@ class TC_MWOM_1_2(MatterBaseTest):
                           0x9: 'Day'}
 
             # derived cluster defined tags
-            derivedTags = [tag.value for tag in Clusters.MicrowaveOvenMode.Enums.ModeTag
-                           if tag is not Clusters.MicrowaveOvenMode.Enums.ModeTag.kUnknownEnumValue]
+            # kUnknownEnumValue may not be defined
+            try:
+                derivedTags = [tag.value for tag in Clusters.MicrowaveOvenMode.Enums.ModeTag
+                               if tag is not Clusters.MicrowaveOvenMode.Enums.ModeTag.kUnknownEnumValue]
+            except AttributeError:
+                derivedTags = Clusters.MicrowaveOvenMode.Enums.ModeTag
 
             for m in supported_modes:
                 for t in m.modeTags:
