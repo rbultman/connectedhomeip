@@ -18,13 +18,8 @@
 import logging
 
 import chip.clusters as Clusters
-from matter_testing_support import MatterBaseTest, async_test_body, default_matter_test_main
+from matter_testing_support import MatterBaseTest, TestStep, async_test_body, default_matter_test_main
 from mobly import asserts
-
-# This test requires several additional command line arguments
-# run with
-# --int-arg PIXIT_ENDPOINT:<endpoint>
-
 
 class TC_MWOM_1_2(MatterBaseTest):
 
@@ -32,77 +27,83 @@ class TC_MWOM_1_2(MatterBaseTest):
         cluster = Clusters.Objects.MicrowaveOvenMode
         return await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attribute)
 
+    def desc_TC_MWOM_1_2(self) -> str:
+        return "[TC-MWOM-1.2] Cluster attributes with DUT as Server"
+
+    def steps_TC_MWOM_1_2(self) -> list[TestStep]:
+        steps = [
+            TestStep(1, "Commissioning, already done", is_commissioning=True),
+            TestStep(2, "Read the SupportedModes attribute"),
+            TestStep(3, "Read the CurrentMode attribute"),
+        ]
+        return steps
+
+    def pics_TC_MWOM_1_2(self) -> list[str]:
+        pics = [
+            "MWOM.S",
+        ]
+        return pics
+
     @async_test_body
     async def test_TC_MWOM_1_2(self):
 
-        asserts.assert_true('PIXIT_ENDPOINT' in self.matter_test_config.global_test_params,
-                            "PIXIT_ENDPOINT must be included on the command line in "
-                            "the --int-arg flag as PIXIT_ENDPOINT:<endpoint>")
-
-        self.endpoint = self.matter_test_config.global_test_params['PIXIT_ENDPOINT']
+        endpoint = self.user_params.get("endpoint", 1)
 
         attributes = Clusters.MicrowaveOvenMode.Attributes
 
-        self.print_step(1, "Commissioning, already done")
+        self.step(1)
 
-        if self.check_pics("MWOM.S.A0000"):
-            self.print_step(2, "Read SupportedModes attribute")
-            supported_modes = await self.read_mod_attribute_expect_success(endpoint=self.endpoint, attribute=attributes.SupportedModes)
+        self.step(2)
+        supported_modes = await self.read_mod_attribute_expect_success(endpoint=endpoint, attribute=attributes.SupportedModes)
+        asserts.assert_greater_equal(len(supported_modes), 2, "SupportedModes must have at least 2 entries!")
+        asserts.assert_less_equal(len(supported_modes), 255, "SupportedModes must have at most 255 entries!")
+        modes = []
+        for m in supported_modes:
+            if m.mode in modes:
+                asserts.fail("SupportedModes must have unique mode values!")
+            else:
+                modes.append(m.mode)
 
-            logging.info("SupportedModes: %s" % (supported_modes))
+        labels = []
+        for m in supported_modes:
+            if m.label in labels:
+                asserts.fail("SupportedModes must have unique mode label values!")
+            else:
+                labels.append(m.label)
 
-            asserts.assert_greater_equal(len(supported_modes), 2, "SupportedModes must have at least 2 entries!")
-            asserts.assert_less_equal(len(supported_modes), 255, "SupportedModes must have at most 255 entries!")
+        # common mode tags
+        commonTags = {0x0: 'Auto',
+                        0x1: 'Quick',
+                        0x2: 'Quiet',
+                        0x3: 'LowNoise',
+                        0x4: 'LowEnergy',
+                        0x5: 'Vacation',
+                        0x6: 'Min',
+                        0x7: 'Max',
+                        0x8: 'Night',
+                        0x9: 'Day'}
 
-            modes = []
-            for m in supported_modes:
-                if m.mode in modes:
-                    asserts.fail("SupportedModes must have unique mode values!")
-                else:
-                    modes.append(m.mode)
+        # derived cluster defined tags
+        # kUnknownEnumValue may not be defined
+        try:
+            derivedTags = [tag.value for tag in Clusters.MicrowaveOvenMode.Enums.ModeTag
+                            if tag is not Clusters.MicrowaveOvenMode.Enums.ModeTag.kUnknownEnumValue]
+        except AttributeError:
+            derivedTags = Clusters.MicrowaveOvenMode.Enums.ModeTag
 
-            labels = []
-            for m in supported_modes:
-                if m.label in labels:
-                    asserts.fail("SupportedModes must have unique mode label values!")
-                else:
-                    labels.append(m.label)
+        for m in supported_modes:
+            for t in m.modeTags:
+                is_mfg = (0x8000 <= t.value and t.value <= 0xBFFF)
+                asserts.assert_true(t.value in commonTags.keys() or t.value in derivedTags or is_mfg,
+                                    "Found a SupportedModes entry with invalid mode tag value!")
+                if t.value == Clusters.MicrowaveOvenMode.Enums.ModeTag.kNormal:
+                    normal_present = True
+        asserts.assert_true(normal_present, "The Supported Modes does not have an entry of Normal(0x4000)")
 
-            # common mode tags
-            commonTags = {0x0: 'Auto',
-                          0x1: 'Quick',
-                          0x2: 'Quiet',
-                          0x3: 'LowNoise',
-                          0x4: 'LowEnergy',
-                          0x5: 'Vacation',
-                          0x6: 'Min',
-                          0x7: 'Max',
-                          0x8: 'Night',
-                          0x9: 'Day'}
-
-            # derived cluster defined tags
-            # kUnknownEnumValue may not be defined
-            try:
-                derivedTags = [tag.value for tag in Clusters.MicrowaveOvenMode.Enums.ModeTag
-                               if tag is not Clusters.MicrowaveOvenMode.Enums.ModeTag.kUnknownEnumValue]
-            except AttributeError:
-                derivedTags = Clusters.MicrowaveOvenMode.Enums.ModeTag
-
-            for m in supported_modes:
-                for t in m.modeTags:
-                    is_mfg = (0x8000 <= t.value and t.value <= 0xBFFF)
-                    asserts.assert_true(t.value in commonTags.keys() or t.value in derivedTags or is_mfg,
-                                        "Found a SupportedModes entry with invalid mode tag value!")
-                    if t.value == Clusters.MicrowaveOvenMode.Enums.ModeTag.kNormal:
-                        normal_present = True
-            asserts.assert_true(normal_present, "The Supported Modes does not have an entry of Normal(0x4000)")
-
-        if self.check_pics("MWOM.S.A0001"):
-            self.print_step(3, "Read CurrentMode attribute")
-            current_mode = await self.read_mod_attribute_expect_success(endpoint=self.endpoint, attribute=attributes.CurrentMode)
-
-            logging.info("CurrentMode: %s" % (current_mode))
-            asserts.assert_true(current_mode in modes, "CurrentMode is not a supported mode!")
+        self.step(3)
+        current_mode = await self.read_mod_attribute_expect_success(endpoint=endpoint, attribute=attributes.CurrentMode)
+        logging.info("CurrentMode: %s" % current_mode)
+        asserts.assert_true(current_mode in modes, "CurrentMode is not a supported mode!")
 
 
 if __name__ == "__main__":
