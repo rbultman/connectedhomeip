@@ -67,8 +67,8 @@ class TC_MWOCTRL_2_2(MatterBaseTest):
         if feature_map == features.kPowerAsNumber:
             self.step(2)
             powerValue = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.PowerSetting)
-            asserts.assert_true(powerValue >= 10, "PowerSetting is less than 10")
-            asserts.assert_true(powerValue <= 100, "PowerSetting is greater than 100")
+            asserts.assert_greater_equal(powerValue, 10, "PowerSetting is less than 10")
+            asserts.assert_less_equal(powerValue, 100, "PowerSetting is greater than 100")
             asserts.assert_true(powerValue % 10 == 0, "PowerSetting is not a multiple of 10")
 
             self.step(3)
