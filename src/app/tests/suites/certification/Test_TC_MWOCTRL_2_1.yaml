@@ -37,7 +37,7 @@ tests:
       response:
           saveAs: MaxCookTimeValue
           constraints:
-              type: elapsed-s
+              type: elapsed_s
               minValue: 1
               maxValue: 86400
 
@@ -46,7 +46,7 @@ tests:
       attribute: "CookTime"
       response:
           constraints:
-              type: elapsed-s
+              type: elapsed_s
               minValue: 1
               maxValue: MaxCookTimeValue
 
@@ -71,7 +71,7 @@ tests:
       response:
           value: 60
           constraints:
-              type: elapsed-s
+              type: elapsed_s
 
     - label: "Step 6: Read the WattRating attribute"
       PICS: MWOCTRL.S.A0008

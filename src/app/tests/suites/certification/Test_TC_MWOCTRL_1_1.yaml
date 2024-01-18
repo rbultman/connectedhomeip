@@ -42,7 +42,7 @@ tests:
     - label: "Step 3a: Check for no features selected."
       command: "readAttribute"
       attribute: "FeatureMap"
-      PICS: "!MWOCTRL.S.F00 && !MWOCTRL.S.F01"
+      PICS: "!MWOCTRL.S.F00 && !MWOCTRL.S.F01 && !MWOCTRL.S.F02"
       response:
           value: 0
           constraints:
@@ -53,22 +53,24 @@ tests:
       attribute: "FeatureMap"
       PICS: MWOCTRL.S.F00
       response:
-          value: 1
           saveAs: powerNumSupported
           constraints:
               type: bitmap32
+              hasMasksSet: [0x1]
+              hasMasksClear: [0x2]
 
-    - label: "Step 3b: Check for WATTS feature support"
+    - label: "Step 3c: Check for WATTS feature support"
       command: "readAttribute"
       attribute: "FeatureMap"
       PICS: MWOCTRL.S.F01
       response:
-          value: 2
           saveAs: wattsSupported
           constraints:
               type: bitmap32
+              hasMasksClear: [0x1]
+              hasMasksSet: [0x2]
 
-    - label: "Step 3c: Check for PWRLMTS feature support"
+    - label: "Step 3d: Check for PWRLMTS feature support"
       command: "readAttribute"
       attribute: "FeatureMap"
       PICS: MWOCTRL.S.F02
@@ -76,7 +78,7 @@ tests:
           saveAs: wattsSupported
           constraints:
               type: bitmap32
-              hasMasksSet: [0x4]
+              hasMasksSet: [0x1, 0x4]
 
     - label: "Step 4a: Read the global attribute: AttributeList"
       PICS: PICS_EVENT_LIST_ENABLED

@@ -315,7 +315,7 @@ void Instance::HandleSetCookingParameters(HandlerContext & ctx, const Commands::
 
         // count of supported watt levels must greater than 0
         VerifyOrExit(
-            mSupportedWattLevels > 0,
+            mSupportedWattLevels > 0, status = Status::Failure;
             ChipLogError(Zcl, "Microwave Oven Control: Failed to set wattSettingIndex, count of supported watt levels is 0"));
 
         reqWattSettingIndex = wattSettingIndex.ValueOr(mSupportedWattLevels - 1);
