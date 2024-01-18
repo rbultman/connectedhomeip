@@ -28,6 +28,7 @@ from mobly import asserts
 
 class TC_MWOCTRL_2_2(MatterBaseTest):
 
+
     async def read_mwoctrl_attribute_expect_success(self, endpoint, attribute):
         cluster = Clusters.Objects.MicrowaveOvenControl
         return await self.read_single_attribute_check_success(endpoint=endpoint, cluster=cluster, attribute=attribute)
@@ -68,10 +69,10 @@ class TC_MWOCTRL_2_2(MatterBaseTest):
             powerValue = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.PowerSetting)
             asserts.assert_true(powerValue >= 10, "PowerSetting is less than 10")
             asserts.assert_true(powerValue <= 100, "PowerSetting is greater than 100")
-            asserts.assert_true(powerValue%10 == 0, "PowerSetting is not a multiple of 10")
+            asserts.assert_true(powerValue % 10 == 0, "PowerSetting is not a multiple of 10")
 
             self.step(3)
-            newPowerValue = (powerValue+10)%100
+            newPowerValue = (powerValue+10) % 100
             try:
                 await self.send_single_cmd(cmd=commands.SetCookingParameters(powerSetting=newPowerValue), endpoint=endpoint)
             except InteractionModelError as e:
