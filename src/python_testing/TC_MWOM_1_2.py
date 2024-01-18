@@ -21,6 +21,7 @@ import chip.clusters as Clusters
 from matter_testing_support import MatterBaseTest, TestStep, async_test_body, default_matter_test_main
 from mobly import asserts
 
+
 class TC_MWOM_1_2(MatterBaseTest):
 
     async def read_mod_attribute_expect_success(self, endpoint, attribute):
@@ -73,21 +74,21 @@ class TC_MWOM_1_2(MatterBaseTest):
 
         # common mode tags
         commonTags = {0x0: 'Auto',
-                        0x1: 'Quick',
-                        0x2: 'Quiet',
-                        0x3: 'LowNoise',
-                        0x4: 'LowEnergy',
-                        0x5: 'Vacation',
-                        0x6: 'Min',
-                        0x7: 'Max',
-                        0x8: 'Night',
-                        0x9: 'Day'}
+                      0x1: 'Quick',
+                      0x2: 'Quiet',
+                      0x3: 'LowNoise',
+                      0x4: 'LowEnergy',
+                      0x5: 'Vacation',
+                      0x6: 'Min',
+                      0x7: 'Max',
+                      0x8: 'Night',
+                      0x9: 'Day'}
 
         # derived cluster defined tags
         # kUnknownEnumValue may not be defined
         try:
             derivedTags = [tag.value for tag in Clusters.MicrowaveOvenMode.Enums.ModeTag
-                            if tag is not Clusters.MicrowaveOvenMode.Enums.ModeTag.kUnknownEnumValue]
+                           if tag is not Clusters.MicrowaveOvenMode.Enums.ModeTag.kUnknownEnumValue]
         except AttributeError:
             derivedTags = Clusters.MicrowaveOvenMode.Enums.ModeTag
 

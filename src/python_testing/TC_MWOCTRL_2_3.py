@@ -26,6 +26,7 @@ from mobly import asserts
 # run with
 # --int-arg PIXIT_ENDPOINT:<endpoint>
 
+
 class TC_MWOCTRL_2_3(MatterBaseTest):
 
     async def read_mwoctrl_attribute_expect_success(self, endpoint, attribute):
@@ -46,7 +47,6 @@ class TC_MWOCTRL_2_3(MatterBaseTest):
             TestStep(7, "Read and verify the PowerSetting attribute"),
         ]
         return steps
-
 
     def pics_TC_MWOCTRL_2_3(self) -> list[str]:
         pics = [
@@ -86,16 +86,16 @@ class TC_MWOCTRL_2_3(MatterBaseTest):
             powerValue = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.PowerSetting)
             asserts.assert_true(powerValue >= 10, "PowerSetting is less than 10")
             asserts.assert_true(powerValue <= 100, "PowerSetting is greater than 100")
-            asserts.assert_true((powerValue-minPowerValue)%powerStepValue == 0, "PowerSetting is not a multiple of 10")
+            asserts.assert_true((powerValue-minPowerValue) % powerStepValue == 0, "PowerSetting is not a multiple of 10")
 
             self.step(6)
-            newPowerValue = (powerValue-minPowerValue)%(maxPowerValue-minPowerValue)+powerStepValue+minPowerValue
+            newPowerValue = (powerValue-minPowerValue) % (maxPowerValue-minPowerValue)+powerStepValue+minPowerValue
             try:
                 await self.send_single_cmd(cmd=commands.SetCookingParameters(powerSetting=newPowerValue), endpoint=endpoint)
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
                 pass
-            
+
             self.step(7)
             powerValue = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.PowerSetting)
             asserts.assert_true(powerValue == newPowerValue, "PowerSetting was not correctly set")
@@ -105,8 +105,9 @@ class TC_MWOCTRL_2_3(MatterBaseTest):
             for step in self.get_test_steps(self.current_test_info.name)[self.current_step_index:]:
                 self.step(step.test_plan_number)
                 logging.info("Test step skipped")
-                
+
             return
+
 
 if __name__ == "__main__":
     default_matter_test_main()

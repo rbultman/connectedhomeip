@@ -26,6 +26,7 @@ from mobly import asserts
 # run with
 # --int-arg PIXIT_ENDPOINT:<endpoint>
 
+
 class TC_MWOCTRL_2_4(MatterBaseTest):
 
     async def read_mwoctrl_attribute_expect_success(self, endpoint, attribute):
@@ -67,20 +68,20 @@ class TC_MWOCTRL_2_4(MatterBaseTest):
         if feature_map == features.kPowerInWatts:
             self.step(2)
             supportedWattsList = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.SupportedWatts)
-            asserts.assert_true(len(supportedWattsList)>0, "SupportedWatts list is empty")
+            asserts.assert_true(len(supportedWattsList) > 0, "SupportedWatts list is empty")
 
             self.step(3)
             selectedWattIndex = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.SelectedWattIndex)
             asserts.assert_true(selectedWattIndex >= 0 and selectedWattIndex < len(supportedWattsList), "SelectedWattIndex is out of range")
 
             self.step(4)
-            newWattIndex = (selectedWattIndex+1)%(len(supportedWattsList)-1)
+            newWattIndex = (selectedWattIndex+1) % (len(supportedWattsList)-1)
             try:
                 await self.send_single_cmd(cmd=commands.SetCookingParameters(wattSettingIndex=newWattIndex), endpoint=endpoint)
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
                 pass
-            
+
             self.step(5)
             selectedWattIndex = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.SelectedWattIndex)
             asserts.assert_true(selectedWattIndex == newWattIndex, "SelectedWattIndex was not correctly set")
@@ -90,8 +91,9 @@ class TC_MWOCTRL_2_4(MatterBaseTest):
             for step in self.get_test_steps(self.current_test_info.name)[self.current_step_index:]:
                 self.step(step.test_plan_number)
                 logging.info("Test step skipped")
-                
+
             return
+
 
 if __name__ == "__main__":
     default_matter_test_main()

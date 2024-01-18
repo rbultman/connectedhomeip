@@ -26,8 +26,8 @@ from mobly import asserts
 # run with
 # --int-arg PIXIT_ENDPOINT:<endpoint>
 
-class TC_MWOCTRL_2_2(MatterBaseTest):
 
+class TC_MWOCTRL_2_2(MatterBaseTest):
 
     async def read_mwoctrl_attribute_expect_success(self, endpoint, attribute):
         cluster = Clusters.Objects.MicrowaveOvenControl
@@ -78,7 +78,7 @@ class TC_MWOCTRL_2_2(MatterBaseTest):
             except InteractionModelError as e:
                 asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
                 pass
-            
+
             self.step(4)
             powerValue = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.PowerSetting)
             asserts.assert_true(powerValue == newPowerValue, "PowerSetting was not correctly set")
@@ -88,8 +88,9 @@ class TC_MWOCTRL_2_2(MatterBaseTest):
             for step in self.get_test_steps(self.current_test_info.name)[self.current_step_index:]:
                 self.step(step.test_plan_number)
                 logging.info("Test step skipped")
-                
+
             return
+
 
 if __name__ == "__main__":
     default_matter_test_main()
