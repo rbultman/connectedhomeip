@@ -72,7 +72,8 @@ class TC_MWOCTRL_2_4(MatterBaseTest):
 
             self.step(3)
             selectedWattIndex = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.SelectedWattIndex)
-            asserts.assert_true(selectedWattIndex >= 0 and selectedWattIndex < len(supportedWattsList), "SelectedWattIndex is out of range")
+            asserts.assert_true(selectedWattIndex >= 0 and selectedWattIndex < len(
+                supportedWattsList), "SelectedWattIndex is out of range")
 
             self.step(4)
             newWattIndex = (selectedWattIndex+1) % (len(supportedWattsList)-1)
