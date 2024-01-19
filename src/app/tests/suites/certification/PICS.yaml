@@ -1863,6 +1863,40 @@ PICS:
           "Does the device implement sending the ChangeToModeResponse command?"
       id: DISHM.S.C01.Tx
 
+    #
+    # Microwave Oven Mode Cluster
+    #
+    - label:
+          "Does the device implement the Microwave Oven Mode cluster as a server"
+      id: MWOM.S
+
+    - label:
+          "Does the device implement the Microwave Oven Mode cluster as a client"
+      id: MWOM.C
+
+    #
+    # Microwave Oven Control Cluster
+    #
+    - label:
+          "Does the device implement the Microwave Oven Control cluster as a server"
+      id: MWOCTRL.S
+
+    - label:
+          "Does the device implement the Microwave Oven Control cluster as a client"
+      id: MWOCTRL.C
+
+    #
+    # server / features
+    #
+    - label: "Does the device support the power as a number feature"
+      id: MWOCTRL.S.F00
+
+    - label: "Does the device support the power as watts feature"
+      id: MWOCTRL.S.F01
+
+    - label: "Does the device support the power number limits feature"
+      id: MWOCTRL.S.F02
+
     # Descriptor Cluster TestPlan
     - label: "Does the device implement the Descriptor cluster as a server?"
       id: DESC.S
