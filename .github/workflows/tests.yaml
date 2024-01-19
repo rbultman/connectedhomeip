@@ -205,6 +205,7 @@ jobs:
                         --target linux-x64-tv-app-${BUILD_VARIANT} \
                         --target linux-x64-bridge-${BUILD_VARIANT} \
                         --target linux-x64-lit-icd-${BUILD_VARIANT} \
+                        --target linux-x64-microwave-oven-app-${BUILD_VARIANT} \
                         build \
                         --copy-artifacts-to objdir-clone \
                      "
@@ -225,6 +226,7 @@ jobs:
                      --tv-app ./out/linux-x64-tv-app-${BUILD_VARIANT}/chip-tv-app \
                      --bridge-app ./out/linux-x64-bridge-${BUILD_VARIANT}/chip-bridge-app \
                      --lit-icd-app ./out/linux-x64-lit-icd-${BUILD_VARIANT}/lit-icd-app \
+                     --microwave-oven-app ./out/linux-x64-microwave-oven-app-${BUILD_VARIANT}/microwave-oven-app \
                   "
 
             - name: Run purposeful failure tests using the python parser sending commands to chip-tool
@@ -264,6 +266,7 @@ jobs:
                      --tv-app ./out/linux-x64-tv-app-${BUILD_VARIANT}/chip-tv-app \
                      --bridge-app ./out/linux-x64-bridge-${BUILD_VARIANT}/chip-bridge-app \
                      --lit-icd-app ./out/linux-x64-lit-icd-${BUILD_VARIANT}/lit-icd-app \
+                     --microwave-oven-app ./out/linux-x64-microwave-oven-app-${BUILD_VARIANT}/microwave-oven-app \
                   "
             - name: Run Tests using chip-repl (including slow)
               if: github.event_name == 'push'
@@ -281,6 +284,7 @@ jobs:
                      --tv-app ./out/linux-x64-tv-app-${BUILD_VARIANT}/chip-tv-app \
                      --bridge-app ./out/linux-x64-bridge-${BUILD_VARIANT}/chip-bridge-app \
                      --lit-icd-app ./out/linux-x64-lit-icd-${BUILD_VARIANT}/lit-icd-app \
+                     --microwave-oven-app ./out/linux-x64-microwave-oven-app-${BUILD_VARIANT}/microwave-oven-app \
                   "
             - name: Uploading core files
               uses: actions/upload-artifact@v4
@@ -347,6 +351,7 @@ jobs:
                         --target darwin-x64-tv-app-${BUILD_VARIANT} \
                         --target darwin-x64-bridge-${BUILD_VARIANT} \
                         --target darwin-x64-lit-icd-${BUILD_VARIANT} \
+                        --target darwin-x64-microwave-oven-app-${BUILD_VARIANT} \
                         build \
                         --copy-artifacts-to objdir-clone \
                      "
@@ -367,7 +372,8 @@ jobs:
                      --ota-requestor-app ./out/darwin-x64-ota-requestor-${BUILD_VARIANT}/chip-ota-requestor-app \
                      --tv-app ./out/darwin-x64-tv-app-${BUILD_VARIANT}/chip-tv-app \
                      --bridge-app ./out/darwin-x64-bridge-${BUILD_VARIANT}/chip-bridge-app \
-                      --lit-icd-app ./out/darwin-x64-lit-icd-${BUILD_VARIANT}/lit-icd-app \
+                     --lit-icd-app ./out/darwin-x64-lit-icd-${BUILD_VARIANT}/lit-icd-app \
+                     --microwave-oven-app ./out/darwin-x64-microwave-oven-app-${BUILD_VARIANT}/microwave-oven-app \
                   "
 
             - name: Run purposeful failure tests using the python parser sending commands to chip-tool
