@@ -1874,7 +1874,8 @@ PICS:
     # Microwave Oven Control Cluster
     #
     - label:
-          "Does the device implement the Microwave Oven Control cluster as a server"
+          "Does the device implement the Microwave Oven Control cluster as a
+          server"
       id: MWOCTRL.S
 
     #
