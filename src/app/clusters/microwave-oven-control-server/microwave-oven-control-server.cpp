@@ -42,9 +42,8 @@ namespace MicrowaveOvenControl {
 Instance::Instance(Delegate * aDelegate, EndpointId aEndpointId, ClusterId aClusterId,
                    BitMask<MicrowaveOvenControl::Feature> aFeature, Clusters::OperationalState::Instance & aOpStateInstance,
                    Clusters::ModeBase::Instance & aMicrowaveOvenModeInstance) :
-    CommandHandlerInterface(MakeOptional(aEndpointId), aClusterId),
-    AttributeAccessInterface(MakeOptional(aEndpointId), aClusterId), mDelegate(aDelegate), mEndpointId(aEndpointId),
-    mClusterId(aClusterId), mFeature(aFeature), mOpStateInstance(aOpStateInstance),
+    CommandHandlerInterface(MakeOptional(aEndpointId), aClusterId), AttributeAccessInterface(MakeOptional(aEndpointId), aClusterId),
+    mDelegate(aDelegate), mEndpointId(aEndpointId), mClusterId(aClusterId), mFeature(aFeature), mOpStateInstance(aOpStateInstance),
     mMicrowaveOvenModeInstance(aMicrowaveOvenModeInstance)
 {
     mDelegate->SetInstance(this);
@@ -318,7 +317,7 @@ void Instance::HandleSetCookingParameters(HandlerContext & ctx, const Commands::
                          Zcl, "Microwave Oven Control: Failed to set wattSettingIndex, count of supported watt levels is 0"));
 
         reqWattSettingIndex = wattSettingIndex.ValueOr(mSupportedWattLevels - 1);
-        VerifyOrExit(reqWattSettingIndex <= (mSupportedWattLevels - 1), status = Status::ConstraintError;
+        VerifyOrExit(reqWattSettingIndex <= (mSupportedWattLevels - 1u), status = Status::ConstraintError;
                      ChipLogError(Zcl, "Microwave Oven Control: Failed to set wattSettingIndex, wattSettingIndex is out of range"));
 
         status = mDelegate->HandleSetCookingParametersCallback(reqCookMode, reqCookTimeSec, reqStartAfterSetting, NullOptional,
