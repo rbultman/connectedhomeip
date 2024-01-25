@@ -319,7 +319,7 @@ def cmd_run(context, iterations, all_clusters_app, lock_app, ota_provider_app, o
         lit_icd_app = paths_finder.get('lit-icd-app')
 
     if microwave_oven_app is None:
-        microwave_oven_app = paths_finder.get('microwave-oven-app')
+        microwave_oven_app = paths_finder.get('chip-microwave-oven-app')
 
     if chip_repl_yaml_tester is None:
         chip_repl_yaml_tester = paths_finder.get('yamltest_with_chip_repl_tester.py')
