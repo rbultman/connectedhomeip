@@ -955,6 +955,20 @@ static constexpr CommandId Id = 0x00000004;
 } // namespace Commands
 } // namespace DemandResponseLoadControl
 
+namespace Messages {
+namespace Commands {
+
+namespace PresentMessagesRequest {
+static constexpr CommandId Id = 0x00000000;
+} // namespace PresentMessagesRequest
+
+namespace CancelMessagesRequest {
+static constexpr CommandId Id = 0x00000001;
+} // namespace CancelMessagesRequest
+
+} // namespace Commands
+} // namespace Messages
+
 namespace DeviceEnergyManagement {
 namespace Commands {
 
@@ -1843,6 +1857,14 @@ static constexpr CommandId Id = 0x00000016;
 namespace TestSecondBatchHelperRequest {
 static constexpr CommandId Id = 0x00000017;
 } // namespace TestSecondBatchHelperRequest
+
+namespace TestDifferentVendorMeiRequest {
+static constexpr CommandId Id = 0xFFF200AA;
+} // namespace TestDifferentVendorMeiRequest
+
+namespace TestDifferentVendorMeiResponse {
+static constexpr CommandId Id = 0xFFF200BB;
+} // namespace TestDifferentVendorMeiResponse
 
 } // namespace Commands
 } // namespace UnitTesting
