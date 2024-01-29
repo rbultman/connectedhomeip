@@ -229,7 +229,7 @@ void Instance::InvokeCommand(HandlerContext & handlerContext)
 void Instance::HandleSetCookingParameters(HandlerContext & ctx, const Commands::SetCookingParameters::DecodableType & req)
 {
     ChipLogDetail(Zcl, "Microwave Oven Control: HandleSetCookingParameters");
-    Status status;
+    Status status = Status::Success;
     uint8_t opState;
     uint8_t modeValue;
     uint8_t reqCookMode;
@@ -314,8 +314,7 @@ void Instance::HandleSetCookingParameters(HandlerContext & ctx, const Commands::
             ChipLogError(Zcl, "Microwave Oven Control: Failed to set cooking parameters, all command fields are missing "));
 
         // count of supported watt levels must greater than 0
-        VerifyOrExit(
-            mSupportedWattLevels > 0,
+        VerifyOrExit(mSupportedWattLevels > 0,
             ChipLogError(Zcl, "Microwave Oven Control: Failed to set wattSettingIndex, count of supported watt levels is 0"));
         uint8_t maxWattSettingIndex = static_cast<uint8_t>(mSupportedWattLevels - 1);
         reqWattSettingIndex         = wattSettingIndex.ValueOr(maxWattSettingIndex);
