@@ -42,6 +42,7 @@ class TC_MWOCTRL_2_2(MatterBaseTest):
             TestStep(2, "Read the PowerSetting attribute"),
             TestStep(3, "Send the SetCookingParameters command"),
             TestStep(4, "Read and verify the PowerSetting attribute"),
+            TestStep(5, "Check that out of range returns CONSTRAINT_ERROR"),
         ]
         return steps
 
@@ -92,6 +93,17 @@ class TC_MWOCTRL_2_2(MatterBaseTest):
         self.step(4)
         powerValue = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.PowerSetting)
         asserts.assert_true(powerValue == newPowerValue, "PowerSetting was not correctly set")
+
+        self.step(5)
+        newPowerValue = 125
+        constraint_error_received = False
+        try:
+            await self.send_single_cmd(cmd=commands.SetCookingParameters(powerSetting=newPowerValue), endpoint=endpoint)
+        except InteractionModelError as e:
+            asserts.assert_equal(e.status, Status.ConstraintError, "Unexpected error returned")
+            constraint_error_received = True
+            pass
+        asserts.assert_true(constraint_error_received, "Expected CONSTRAINT_ERROR but did not receive it.")
 
 
 if __name__ == "__main__":
