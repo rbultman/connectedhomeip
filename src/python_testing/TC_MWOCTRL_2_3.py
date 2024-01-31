@@ -84,8 +84,8 @@ class TC_MWOCTRL_2_3(MatterBaseTest):
 
             self.step(5)
             powerValue = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.PowerSetting)
-            asserts.assert_true(powerValue >= 10, "PowerSetting is less than 10")
-            asserts.assert_true(powerValue <= 100, "PowerSetting is greater than 100")
+            asserts.assert_true(powerValue >= minPowerValue, "PowerSetting is less than MinPower")
+            asserts.assert_true(powerValue <= maxPowerValue, "PowerSetting is greater than MaxPower")
             asserts.assert_true((powerValue-minPowerValue) % powerStepValue == 0, "PowerSetting is not a multiple of 10")
 
             self.step(6)
