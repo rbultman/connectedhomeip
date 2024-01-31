@@ -64,7 +64,17 @@ class TC_MWOCTRL_2_2(MatterBaseTest):
 
         feature_map = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.FeatureMap)
 
-        if feature_map == features.kPowerAsNumber:
+        only_pwrnum_supported = feature_map == features.kPowerAsNumber
+
+        if not only_pwrnum_supported:
+            logging.info("More than PWRNUM is supported so skipping remaining test steps")
+            # Skipping all remainig steps
+            for step in self.get_test_steps(self.current_test_info.name)[self.current_step_index:]:
+                self.step(step.test_plan_number)
+                logging.info("Test step skipped")
+            return
+        else:
+            logging.info("Only the PWRNUM feature is supported so continuing with remaining test steps")
             self.step(2)
             powerValue = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.PowerSetting)
             asserts.assert_greater_equal(powerValue, 10, "PowerSetting is less than 10")
@@ -82,13 +92,6 @@ class TC_MWOCTRL_2_2(MatterBaseTest):
             self.step(4)
             powerValue = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.PowerSetting)
             asserts.assert_true(powerValue == newPowerValue, "PowerSetting was not correctly set")
-
-        else:
-            # Skipping all remainig steps
-            for step in self.get_test_steps(self.current_test_info.name)[self.current_step_index:]:
-                self.step(step.test_plan_number)
-                logging.info("Test step skipped")
-
             return
 
 
