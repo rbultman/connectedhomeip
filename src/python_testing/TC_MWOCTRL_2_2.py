@@ -73,26 +73,25 @@ class TC_MWOCTRL_2_2(MatterBaseTest):
                 self.step(step.test_plan_number)
                 logging.info("Test step skipped")
             return
-        else:
-            logging.info("Only the PWRNUM feature is supported so continuing with remaining test steps")
-            self.step(2)
-            powerValue = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.PowerSetting)
-            asserts.assert_greater_equal(powerValue, 10, "PowerSetting is less than 10")
-            asserts.assert_less_equal(powerValue, 100, "PowerSetting is greater than 100")
-            asserts.assert_true(powerValue % 10 == 0, "PowerSetting is not a multiple of 10")
 
-            self.step(3)
-            newPowerValue = (powerValue+10) % 100
-            try:
-                await self.send_single_cmd(cmd=commands.SetCookingParameters(powerSetting=newPowerValue), endpoint=endpoint)
-            except InteractionModelError as e:
-                asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
-                pass
+        logging.info("Only the PWRNUM feature is supported so continuing with remaining test steps")
+        self.step(2)
+        powerValue = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.PowerSetting)
+        asserts.assert_greater_equal(powerValue, 10, "PowerSetting is less than 10")
+        asserts.assert_less_equal(powerValue, 100, "PowerSetting is greater than 100")
+        asserts.assert_true(powerValue % 10 == 0, "PowerSetting is not a multiple of 10")
 
-            self.step(4)
-            powerValue = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.PowerSetting)
-            asserts.assert_true(powerValue == newPowerValue, "PowerSetting was not correctly set")
-            return
+        self.step(3)
+        newPowerValue = (powerValue+10) % 100
+        try:
+            await self.send_single_cmd(cmd=commands.SetCookingParameters(powerSetting=newPowerValue), endpoint=endpoint)
+        except InteractionModelError as e:
+            asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
+            pass
+
+        self.step(4)
+        powerValue = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.PowerSetting)
+        asserts.assert_true(powerValue == newPowerValue, "PowerSetting was not correctly set")
 
 
 if __name__ == "__main__":

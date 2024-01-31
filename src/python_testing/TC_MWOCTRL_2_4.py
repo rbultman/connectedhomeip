@@ -65,35 +65,37 @@ class TC_MWOCTRL_2_4(MatterBaseTest):
 
         feature_map = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.FeatureMap)
 
-        if feature_map == features.kPowerInWatts:
-            self.step(2)
-            supportedWattsList = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.SupportedWatts)
-            asserts.assert_true(len(supportedWattsList) > 0, "SupportedWatts list is empty")
+        only_watts_supported = feature_map == features.kPowerInWatts
 
-            self.step(3)
-            selectedWattIndex = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.SelectedWattIndex)
-            asserts.assert_true(selectedWattIndex >= 0 and selectedWattIndex < len(
-                supportedWattsList), "SelectedWattIndex is out of range")
-
-            self.step(4)
-            newWattIndex = (selectedWattIndex+1) % (len(supportedWattsList)-1)
-            try:
-                await self.send_single_cmd(cmd=commands.SetCookingParameters(wattSettingIndex=newWattIndex), endpoint=endpoint)
-            except InteractionModelError as e:
-                asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
-                pass
-
-            self.step(5)
-            selectedWattIndex = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.SelectedWattIndex)
-            asserts.assert_true(selectedWattIndex == newWattIndex, "SelectedWattIndex was not correctly set")
-
-        else:
+        if not only_watts_supported:
+            logging.info("PowerInWatts is not supported so skipping the rest of the tests.")
             # Skipping all remainig steps
             for step in self.get_test_steps(self.current_test_info.name)[self.current_step_index:]:
                 self.step(step.test_plan_number)
                 logging.info("Test step skipped")
-
             return
+
+        self.step(2)
+        supportedWattsList = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.SupportedWatts)
+        asserts.assert_true(len(supportedWattsList) > 0, "SupportedWatts list is empty")
+
+        self.step(3)
+        selectedWattIndex = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.SelectedWattIndex)
+        logging.info("SelectedWattIndex is %s" % selectedWattIndex)
+        asserts.assert_true(selectedWattIndex >= 0 and selectedWattIndex < len(
+            supportedWattsList), "SelectedWattIndex is out of range")
+
+        self.step(4)
+        newWattIndex = (selectedWattIndex+1) % (len(supportedWattsList)-1)
+        try:
+            await self.send_single_cmd(cmd=commands.SetCookingParameters(wattSettingIndex=newWattIndex), endpoint=endpoint)
+        except InteractionModelError as e:
+            asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
+            pass
+
+        self.step(5)
+        selectedWattIndex = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.SelectedWattIndex)
+        asserts.assert_true(selectedWattIndex == newWattIndex, "SelectedWattIndex was not correctly set")
 
 
 if __name__ == "__main__":

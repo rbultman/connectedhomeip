@@ -67,46 +67,51 @@ class TC_MWOCTRL_2_3(MatterBaseTest):
 
         feature_map = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.FeatureMap)
 
-        if feature_map == features.kPowerAsNumber + features.kPowerNumberLimits:
-            self.step(2)
-            minPowerValue = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.MinPower)
-            asserts.assert_true(minPowerValue >= 1, "MinPower is less than 1")
+        supports_pwrnum_and_limits = feature_map & (features.kPowerAsNumber or features.kPowerNumberLimits)
 
-            self.step(3)
-            maxPowerValue = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.MaxPower)
-            asserts.assert_true(maxPowerValue >= 1, "MaxPower is less than MinPower")
-            asserts.assert_true(maxPowerValue <= 100, "MaxPower is greater than 100")
-
-            self.step(4)
-            powerStepValue = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.PowerStep)
-            asserts.assert_true(powerStepValue >= 1, "PowerStep is less than 1")
-            asserts.assert_true(powerStepValue <= maxPowerValue, "PowerStep is greater than MaxPower")
-
-            self.step(5)
-            powerValue = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.PowerSetting)
-            asserts.assert_true(powerValue >= minPowerValue, "PowerSetting is less than MinPower")
-            asserts.assert_true(powerValue <= maxPowerValue, "PowerSetting is greater than MaxPower")
-            asserts.assert_true((powerValue-minPowerValue) % powerStepValue == 0, "PowerSetting is not a multiple of 10")
-
-            self.step(6)
-            newPowerValue = (powerValue-minPowerValue) % (maxPowerValue-minPowerValue)+powerStepValue+minPowerValue
-            try:
-                await self.send_single_cmd(cmd=commands.SetCookingParameters(powerSetting=newPowerValue), endpoint=endpoint)
-            except InteractionModelError as e:
-                asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
-                pass
-
-            self.step(7)
-            powerValue = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.PowerSetting)
-            asserts.assert_true(powerValue == newPowerValue, "PowerSetting was not correctly set")
-
-        else:
+        if not supports_pwrnum_and_limits:
+            logging.info("Device does not support PWRNUM and PWRLMTS so skipping the rest of the tests.")
             # Skipping all remainig steps
             for step in self.get_test_steps(self.current_test_info.name)[self.current_step_index:]:
                 self.step(step.test_plan_number)
                 logging.info("Test step skipped")
-
             return
+
+        self.step(2)
+        minPowerValue = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.MinPower)
+        logging.info("MinPower is %s" % minPowerValue)
+        asserts.assert_true(minPowerValue >= 1, "MinPower is less than 1")
+
+        self.step(3)
+        maxPowerValue = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.MaxPower)
+        logging.info("MaxPower is %s" % maxPowerValue)
+        asserts.assert_true(maxPowerValue >= 1, "MaxPower is less than MinPower")
+        asserts.assert_true(maxPowerValue <= 100, "MaxPower is greater than 100")
+
+        self.step(4)
+        powerStepValue = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.PowerStep)
+        logging.info("PowerStep is %s" % powerStepValue)
+        asserts.assert_true(powerStepValue >= 1, "PowerStep is less than 1")
+        asserts.assert_true(powerStepValue <= maxPowerValue, "PowerStep is greater than MaxPower")
+
+        self.step(5)
+        powerValue = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.PowerSetting)
+        logging.info("PowerSetting is %s" % powerValue)
+        asserts.assert_true(powerValue >= minPowerValue, "PowerSetting is less than MinPower")
+        asserts.assert_true(powerValue <= maxPowerValue, "PowerSetting is greater than MaxPower")
+        asserts.assert_true((powerValue-minPowerValue) % powerStepValue == 0, "PowerSetting is not a multiple of 10")
+
+        self.step(6)
+        newPowerValue = (powerValue-minPowerValue) % (maxPowerValue-minPowerValue)+powerStepValue+minPowerValue
+        try:
+            await self.send_single_cmd(cmd=commands.SetCookingParameters(powerSetting=newPowerValue), endpoint=endpoint)
+        except InteractionModelError as e:
+            asserts.assert_equal(e.status, Status.Success, "Unexpected error returned")
+            pass
+
+        self.step(7)
+        powerValue = await self.read_mwoctrl_attribute_expect_success(endpoint=endpoint, attribute=attributes.PowerSetting)
+        asserts.assert_true(powerValue == newPowerValue, "PowerSetting was not correctly set")
 
 
 if __name__ == "__main__":
