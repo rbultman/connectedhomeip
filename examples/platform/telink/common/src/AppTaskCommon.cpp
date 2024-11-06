@@ -407,20 +407,22 @@ void AppTaskCommon::InitPwms()
 
 #if CONFIG_WS2812_STRIP
     pwmManager.linkBackend(Ws2812Strip::getInstance());
-#else
+#elif CONFIG_PWM
     pwmManager.linkBackend(PwmPool::getInstance());
-#endif // CONFIG_WS2812_STRIP
+#else
+    pwmManager.linkBackend(PwmDummy::getInstance());
+#endif
 }
 
 void AppTaskCommon::LinkPwms(PwmManager & pwmManager)
 {
-#if CONFIG_BOARD_TLSR9118BDK40D // TLSR9118BDK40D EVK supports only 1 PWM channel connected to LED
+#if CONFIG_BOARD_TLSR9118BDK40D_V1 && CONFIG_PWM // TLSR9118BDK40D_V1 EVK supports single LED PWM channel
     pwmManager.linkPwm(PwmManager::EAppPwm_Red, 0);
 #elif CONFIG_WS2812_STRIP
     pwmManager.linkPwm(PwmManager::EAppPwm_Red, 0);
     pwmManager.linkPwm(PwmManager::EAppPwm_Green, 1);
     pwmManager.linkPwm(PwmManager::EAppPwm_Blue, 2);
-#else
+#elif CONFIG_PWM
     pwmManager.linkPwm(PwmManager::EAppPwm_Indication, 0);
     pwmManager.linkPwm(PwmManager::EAppPwm_Red, 1);
     pwmManager.linkPwm(PwmManager::EAppPwm_Green, 2);
@@ -445,7 +447,11 @@ void AppTaskCommon::LinkButtons(ButtonManager & buttonManager)
 {
     buttonManager.addCallback(FactoryResetButtonEventHandler, 0, true);
     buttonManager.addCallback(ExampleActionButtonEventHandler, 1, true);
+#if CONFIG_TELINK_OTA_BUTTON_TEST
+    buttonManager.addCallback(TestOTAButtonEventHandler, 2, true);
+#else
     buttonManager.addCallback(StartBleAdvButtonEventHandler, 2, true);
+#endif
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
     buttonManager.addCallback(StartThreadButtonEventHandler, 3, true);
 #elif CHIP_DEVICE_CONFIG_ENABLE_WIFI
@@ -592,6 +598,26 @@ void AppTaskCommon::FactoryResetTimerEventHandler(AppEvent * aEvent)
     sFactoryResetCntr = 0;
     LOG_INF("Factory Reset Trigger Counter is cleared");
 }
+
+#if CONFIG_TELINK_OTA_BUTTON_TEST
+void AppTaskCommon::TestOTAButtonEventHandler(void)
+{
+    AppEvent event;
+
+    event.Type               = AppEvent::kEventType_Button;
+    event.ButtonEvent.Action = kButtonPushEvent;
+    event.Handler            = TestOTAHandler;
+    GetAppTask().PostEvent(&event);
+}
+
+void AppTaskCommon::TestOTAHandler(AppEvent * aEvent)
+{
+    LOG_INF("TestOTAHandler");
+
+    chip::DeviceLayer::OTAImageProcessorImpl imageProcessor;
+    imageProcessor.Apply();
+}
+#endif
 
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
 void AppTaskCommon::StartThreadButtonEventHandler(void)

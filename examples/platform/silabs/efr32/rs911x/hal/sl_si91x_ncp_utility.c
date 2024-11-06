@@ -36,16 +36,18 @@
 #include "spidrv.h"
 #include "task.h"
 
+#ifdef SL_BOARD_NAME
 #include "sl_board_control.h"
+#endif // SL_BOARD_NAME
 
 #include "sl_device_init_clocks.h"
 #include "sl_device_init_hfxo.h"
 #include "sl_status.h"
 
+#include "WifiInterfaceAbstraction.h"
 #include "silabs_utils.h"
 #include "sl_si91x_ncp_utility.h"
 #include "wfx_host_events.h"
-#include "wfx_rsi.h"
 
 #if SL_MX25CTRL_MUX
 sl_status_t sl_wfx_host_spiflash_cs_assert(void);
