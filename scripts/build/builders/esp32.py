@@ -48,6 +48,7 @@ class Esp32App(Enum):
     TESTS = auto()
     OTA_REQUESTOR = auto()
     OTA_PROVIDER = auto()
+    DEHUMIDIFIER = auto()
 
     @property
     def ExamplePath(self):
@@ -77,6 +78,8 @@ class Esp32App(Enum):
             return 'examples/ota-requestor-app'
         if self == Esp32App.OTA_PROVIDER:
             return 'examples/ota-provider-app'
+        if self == Esp32App.DEHUMIDIFIER:
+            return 'examples/dehumidifier-app'
         if self == Esp32App.TESTS:
             return 'src/test_driver'
         raise Exception(f'Unknown app type: {self!r}')
@@ -109,6 +112,8 @@ class Esp32App(Enum):
             return 'chip-ota-requestor-app'
         if self == Esp32App.OTA_PROVIDER:
             return 'chip-ota-provider-app'
+        if self == Esp32App.DEHUMIDIFIER:
+            return 'chip-dehumidifier-app'
         if self == Esp32App.TESTS:
             return None
         raise Exception(f'Unknown app type: {self!r}')

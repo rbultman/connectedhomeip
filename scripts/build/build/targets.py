@@ -212,6 +212,7 @@ def BuildHostTarget():
         TargetPart('jf-control-app', app=HostApp.JF_CONTROL),
         TargetPart('jf-admin-app', app=HostApp.JF_ADMIN),
         TargetPart('closure', app=HostApp.CLOSURE),
+        TargetPart('dehumidifier', app=HostApp.DEHUMIDIFIER),
     ]
 
     # Single-device subset builds for all-devices-app.
@@ -325,6 +326,7 @@ def BuildEsp32Target():
         TargetPart('bridge', app=Esp32App.BRIDGE),
         TargetPart('temperature-measurement',
                    app=Esp32App.TEMPERATURE_MEASUREMENT),
+        TargetPart('dehumidifier', app=Esp32App.DEHUMIDIFIER),
         TargetPart('tests', app=Esp32App.TESTS).OnlyIfRe('-qemu-'),
     ]
     # Single-device subset builds for all-devices-app.

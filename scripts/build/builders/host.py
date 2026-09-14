@@ -153,6 +153,7 @@ class HostApp(Enum):
     JF_CONTROL = auto()
     JF_ADMIN = auto()
     CLOSURE = auto()
+    DEHUMIDIFIER = auto()
 
     def UnifiedTargetName(self):
         """
@@ -269,6 +270,8 @@ class HostApp(Enum):
             return 'jf-admin-app/linux'
         if self == HostApp.CLOSURE:
             return 'closure-app/linux'
+        if self == HostApp.DEHUMIDIFIER:
+            return 'dehumidifier-app/posix'
         raise Exception(f'Unknown app type: {self!r}')
 
     def OutputNames(self):
@@ -417,6 +420,9 @@ class HostApp(Enum):
         elif self == HostApp.CLOSURE:
             yield 'closure-app'
             yield 'closure-app.map'
+        elif self == HostApp.DEHUMIDIFIER:
+            yield 'chip-dehumidifier-app'
+            yield 'chip-dehumidifier-app.map'
         else:
             raise Exception(f'Unknown app type: {self!r}')
 
