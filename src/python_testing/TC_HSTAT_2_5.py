@@ -40,115 +40,68 @@ from mobly import asserts
 from support_modules.hstat_common import HSTATBase
 
 from matter.interaction_model import Status
-from matter.testing.decorators import async_test_body
+from matter.testing.decorators import async_test_body, pics
 from matter.testing.event_attribute_reporting import AttributeSubscriptionHandler
-from matter.testing.runner import TestStep, default_matter_test_main
+from matter.testing.runner import default_matter_test_main
 
 log = logging.getLogger(__name__)
 
-# Auto-generated from test specification: [TC-HSTAT-2.5] Mist functionality with DUT as Server
-
 
 class TC_HSTAT_2_5(HSTATBase):
-
-    def pics_TC_HSTAT_2_5(self) -> list[str]:
-        return [
-            "HSTAT.S",
-            "HSTAT.S.F00"  # Supports the Humidifier feature
-        ]
-
-    def desc_TC_HSTAT_2_5(self) -> str:
-        return "[TC-HSTAT-2.5] Mist functionality with DUT as Server"
-
-    def steps_TC_HSTAT_2_5(self):
-        return [
-            TestStep(1, "Commission DUT to TH (can be skipped if done in a preceding test)", is_commissioning=True),
-            TestStep(2, "TH sends command On to the On/Off cluster on the same endpoint as this cluster.",
-                     "Verify DUT responds w/ status SUCCESS(0x00)"),
-            TestStep(3, "TH sends command SetSettings with the Mode field set to Humidifier",
-                     "Verify DUT responds w/ status SUCCESS(0x00)"),
-            TestStep(4, "TH sends command SetSettings with only the MistWarm bit of the MistType field set",
-                     "Verify DUT responds w/ status SUCCESS(0x00)"),
-            TestStep(5, "TH reads from the DUT the MistType attribute.",
-                     "Verify that the DUT response contains a value with the MistWarm bit set. Store the value as MistSetting"),
-            TestStep(6, "TH writes to the DUT the MistType attribute with only the MistCold bit set",
-                     "Verify DUT responds w/ status SUCCESS(0x00)"),
-            TestStep(7, "TH reads from the DUT the MistType attribute.",
-                     "Verify that the DUT response contains a value with the MistCold bit set."),
-            TestStep(8, "Individually subscribe to the MistType attribute",
-                     "This will receive updates when these attributes change value."),
-            TestStep(9, "TH writes to the DUT the MistType attribute with only the MistWarm bit of the MistType field set",
-                     "Verify that an attribute report was received for MistType and that the value received has only the MistWarm bit set."),
-            TestStep(10, "TH sends command SetSettings with the MistType field set to MistWarm",
-                     "Verify DUT responds w/ status CONSTRAINT_ERROR(0x87)"),
-            TestStep(11, "TH sends command SetSettings with the MistType field set to MistCold",
-                     "Verify DUT responds w/ status CONSTRAINT_ERROR(0x87)"),
-            TestStep(12, "TH sends command Off to the On/Off cluster on the same endpoint as this cluster.",
-                     "Verify DUT responds w/ status SUCCESS(0x00)"),
-            TestStep(13, "TH reads from the DUT the MistType attribute.",
-                     "Verify that the DUT response contains a value between 1 and 3 inclusive."),
-        ]
 
     @property
     def default_endpoint(self) -> int:
         return 1
 
+    @pics('HSTAT.S', 'HSTAT.S.F00')
     @async_test_body
     async def test_TC_HSTAT_2_5(self):
-        self.step(1)
-        # Commission DUT to TH (can be skipped if done in a preceding test).
+        """[TC-HSTAT-2.5] Mist functionality with DUT as Server"""
+        self.step(1, "Commission DUT to TH (can be skipped if done in a preceding test)", is_commissioning=True)
         await self.setup()
 
-        self.step(2)
-        # TH sends command On to the On/Off cluster on the same endpoint as this cluster.
-        # Verify DUT responds w/ status SUCCESS(0x00)
+        self.step(2, "TH sends command On to the On/Off cluster on the same endpoint as this cluster.",
+                  expectation="Verify DUT responds w/ status SUCCESS(0x00)")
         await self.send_onoff_on_cmd_expect_success()
 
-        self.step(3)
-        # TH sends command SetSettings with the Mode field set to Humidifier
-        # Verify DUT responds w/ status SUCCESS(0x00)
+        self.step(3, "TH sends command SetSettings with the Mode field set to Humidifier",
+                  expectation="Verify DUT responds w/ status SUCCESS(0x00)")
         await self.send_SetSettingsCommand_expect_success(mode=self.modeHumidifier)
         dut_SystemState = await self.read_attribute_expect_success(attribute=self.attributes.SystemState)
         log.info("State is: %s", dut_SystemState)
 
         if self.warmFeatureSupported:
-            self.step(4)
-            # TH sends command SetSettings with only the MistWarm bit of the MistType field set
-            # Verify DUT responds w/ status SUCCESS(0x00)
+            self.step(4, "TH sends command SetSettings with only the MistWarm bit of the MistType field set",
+                      expectation="Verify DUT responds w/ status SUCCESS(0x00)")
             await self.send_SetSettingsCommand_expect_success(mistType=self.MistTypeBitmap.kMistWarm)
 
-            self.step(5)
-            # TH reads from the DUT the MistType attribute.
-            # Verify that the DUT response contains a value with the MistWarm bit set. Store the value as MistSetting
+            self.step(5, "TH reads from the DUT the MistType attribute.",
+                      expectation="Verify that the DUT response contains a value with the MistWarm bit set. Store the value as MistSetting")
             dut_MistType = await self.read_attribute_expect_success(attribute=self.attributes.MistType)
             asserts.assert_equal(dut_MistType, self.MistTypeBitmap.kMistWarm, "MistType is not MistWarm as expected")
         else:
             self.mark_step_range_skipped(4, 5)
 
         if self.coldFeatureSupported:
-            self.step(6)
-            # TH writes to the DUT the MistType attribute with only the MistCold bit set
-            # Verify DUT responds w/ status SUCCESS(0x00)
+            self.step(6, "TH writes to the DUT the MistType attribute with only the MistCold bit set",
+                      expectation="Verify DUT responds w/ status SUCCESS(0x00)")
             await self.write_single_attribute(attribute_value=self.attributes.MistType(self.MistTypeBitmap.kMistCold), endpoint_id=self.endpoint, expect_success=True)
 
-            self.step(7)
-            # TH reads from the DUT the MistType attribute.
-            # Verify that the DUT response contains a value with the MistCold bit set.
+            self.step(7, "TH reads from the DUT the MistType attribute.",
+                      expectation="Verify that the DUT response contains a value with the MistCold bit set.")
             dut_MistType = await self.read_attribute_expect_success(attribute=self.attributes.MistType)
             asserts.assert_equal(dut_MistType, self.MistTypeBitmap.kMistCold, "MistType is not MistCold as expected")
         else:
             self.mark_step_range_skipped(6, 7)
 
         if self.warmFeatureSupported and self.coldFeatureSupported:
-            self.step(8)
-            # Individually subscribe to the MistType attribute
-            # This will receive updates when these attributes change value.
+            self.step(8, "Individually subscribe to the MistType attribute",
+                      expectation="This will receive updates when these attributes change value.")
             mistTypeSubscription = AttributeSubscriptionHandler(self.cluster, self.attributes.MistType)
             await mistTypeSubscription.start(self.default_controller, self.dut_node_id, self.endpoint)
 
-            self.step(9)
-            # TH writes to the DUT the MistType attribute with only the MistWarm bit of the MistType field set
-            # Verify that an attribute report was received for MistType and that the value received has only the MistWarm bit set.
+            self.step(9, "TH writes to the DUT the MistType attribute with only the MistWarm bit of the MistType field set",
+                      expectation="Verify that an attribute report was received for MistType and that the value received has only the MistWarm bit set.")
             await self.write_single_attribute(attribute_value=self.attributes.MistType(self.MistTypeBitmap.kMistWarm), endpoint_id=self.endpoint, expect_success=True)
             mistTypeReportValue = mistTypeSubscription.wait_for_attribute_report().value
             asserts.assert_equal(mistTypeReportValue, self.MistTypeBitmap.kMistWarm, "MistType report is not MistWarm as expected")
@@ -157,29 +110,25 @@ class TC_HSTAT_2_5(HSTATBase):
             self.mark_step_range_skipped(8, 9)
 
         if not self.warmFeatureSupported:
-            self.step(10)
-            # TH sends command SetSettings with the MistType field set to MistWarm
-            # Verify DUT responds w/ status CONSTRAINT_ERROR(0x87)
+            self.step(10, "TH sends command SetSettings with the MistType field set to MistWarm",
+                      expectation="Verify DUT responds w/ status CONSTRAINT_ERROR(0x87)")
             await self.send_SetSettingsCommand_expect_error(mistType=self.MistTypeBitmap.kMistWarm, error=Status.ConstraintError)
         else:
             self.skip_step(10)
 
         if not self.coldFeatureSupported:
-            self.step(11)
-            # TH sends command SetSettings with the MistType field set to MistCold
-            # Verify DUT responds w/ status CONSTRAINT_ERROR(0x87)
+            self.step(11, "TH sends command SetSettings with the MistType field set to MistCold",
+                      expectation="Verify DUT responds w/ status CONSTRAINT_ERROR(0x87)")
             await self.send_SetSettingsCommand_expect_error(mistType=self.MistTypeBitmap.kMistCold, error=Status.ConstraintError)
         else:
             self.skip_step(11)
 
-        self.step(12)
-        # TH sends command Off to the On/Off cluster on the same endpoint as this cluster.
-        # Verify DUT responds w/ status SUCCESS(0x00)
+        self.step(12, "TH sends command Off to the On/Off cluster on the same endpoint as this cluster.",
+                  expectation="Verify DUT responds w/ status SUCCESS(0x00)")
         await self.send_onoff_off_cmd_expect_success()
 
-        self.step(13)
-        # TH reads from the DUT the MistType attribute.
-        # Verify that the DUT response contains a value between 1 and 3 inclusive.
+        self.step(13, "TH reads from the DUT the MistType attribute.",
+                  expectation="Verify that the DUT response contains a value between 1 and 3 inclusive.")
         dut_MistType = await self.read_attribute_expect_success(attribute=self.attributes.MistType)
         asserts.assert_greater_equal(dut_MistType, 1, "MistType is less than 1")
         asserts.assert_less_equal(dut_MistType, 3, "MistType is greater than 3")

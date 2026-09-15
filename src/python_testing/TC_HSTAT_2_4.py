@@ -40,64 +40,14 @@ from mobly import asserts
 from support_modules.hstat_common import HSTATBase
 
 from matter.interaction_model import Status
-from matter.testing.decorators import async_test_body
+from matter.testing.decorators import async_test_body, pics
 from matter.testing.event_attribute_reporting import AttributeSubscriptionHandler
-from matter.testing.runner import TestStep, default_matter_test_main
+from matter.testing.runner import default_matter_test_main
 
 log = logging.getLogger(__name__)
 
-# Auto-generated from test specification: [TC-HSTAT-2.4] Optional functionality with DUT as Server
-
 
 class TC_HSTAT_2_4(HSTATBase):
-
-    def pics_TC_HSTAT_2_4(self) -> list[str]:
-        return [
-            "HSTAT.S",
-        ]
-
-    def desc_TC_HSTAT_2_4(self) -> str:
-        return "[TC-HSTAT-2.4] Optional functionality with DUT as Server"
-
-    def steps_TC_HSTAT_2_4(self):
-        return [
-            TestStep(1, "Commission DUT to TH (can be skipped if done in a preceding test)", is_commissioning=True),
-            TestStep(2, "TH sends command On to the On/Off cluster on the same endpoint as this cluster.",
-                     "Verify DUT responds w/ status SUCCESS(0x00)"),
-            TestStep(3, "TH sends command SetSettings with the Mode field set to Humidifier if supported or otherwise to Dehumidifier",
-                     "Verify DUT responds w/ status SUCCESS(0x00)"),
-            TestStep(4, "TH sends command SetSettings with the Continuous, Sleep, and Optimal fields set to False",
-                     "Verify DUT responds w/ status SUCCESS(0x00)"),
-            TestStep(5, "Individually subscribe to the attributes Continuous if supported, Sleep if supported, and Optimal if supported.",
-                     "This will receive updates when these attributes change value."),
-            TestStep(6, "TH sends command SetSettings with the Continuous field set to True.",
-                     "Verify DUT responds w/ status SUCCESS(0x00)"),
-            TestStep(7, "TH reads from the DUT the Continuous attribute.", "Verify that the DUT response contains a value of True"),
-            TestStep(8, "TH writes to the DUT the Continuous attribute with False.",
-                     "Verify DUT responds w/ status SUCCESS(0x00) Confirm 2 attribute reports for Continuous with the first having a value of True and the second having a value of False."),
-            TestStep(9, "TH sends command SetSettings with the Sleep field set to True.",
-                     "Verify DUT responds w/ status SUCCESS(0x00)"),
-            TestStep(10, "TH reads from the DUT the Sleep attribute.", "Verify that the DUT response contains a value of True"),
-            TestStep(11, "TH writes to the DUT the Sleep attribute with False.",
-                     "Verify DUT responds w/ status SUCCESS(0x00) Confirm 2 attribute reports for Sleep with the first having a value of True and the second having a value of False."),
-            TestStep(12, "TH sends command SetSettings with the Optimal field set to True.",
-                     "Verify DUT responds w/ status SUCCESS(0x00)"),
-            TestStep(13, "TH reads from the DUT the Optimal attribute.", "Verify that the DUT response contains a value of True"),
-            TestStep(14, "TH writes to the DUT the Optimal attribute with False.",
-                     "Verify DUT responds w/ status SUCCESS(0x00) Confirm 2 attribute reports for Optimal with the first having a value of True and the second having a value of False."),
-            TestStep(15, "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER for DisallowContinuous event.", "Verify DUT responds w/ status SUCCESS(0x00)."),
-            TestStep(16, "TH sends command SetSettings with the Continuous field set to True",
-                     "Verify DUT responds w/ status INVALID_IN_STATE(0xcb)"),
-            TestStep(17, "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER for AllowContinuous event.", "Verify DUT responds w/ status SUCCESS(0x00)."),
-            TestStep(18, "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER for DisallowSleep event.", "Verify DUT responds w/ status SUCCESS(0x00)."),
-            TestStep(19, "TH sends command SetSettings with the Sleep field set to True",
-                     "Verify DUT responds w/ status INVALID_IN_STATE(0xcb)"),
-            TestStep(20, "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER for AllowSleep event.", "Verify DUT responds w/ status SUCCESS(0x00)."),
-            TestStep(21, "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER for DisallowOptimal event.", "Verify DUT responds w/ status SUCCESS(0x00)."),
-            TestStep(22, "TH sends command SetSettings with the Optimal field set to True",
-                     "Verify DUT responds w/ status INVALID_IN_STATE(0xcb)"),
-            TestStep(23, "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER for AllowOptimal event.", "Verify DUT responds w/ status SUCCESS(0x00)."),
-        ]
 
     @property
     def default_endpoint(self) -> int:
@@ -121,10 +71,11 @@ class TC_HSTAT_2_4(HSTATBase):
     async def allow_optimal_event(self):
         await self.send_test_event_triggers(eventTrigger=0x0205000000000005)
 
+    @pics('HSTAT.S')
     @async_test_body
     async def test_TC_HSTAT_2_4(self):
-        self.step(1)
-        # Commission DUT to TH (can be skipped if done in a preceding test).
+        """[TC-HSTAT-2.4] Optional functionality with DUT as Server"""
+        self.step(1, "Commission DUT to TH (can be skipped if done in a preceding test)", is_commissioning=True)
         await self.setup()
 
         # Not sure how to gate this test case with the 'def pics_' statement, so doing that here.
@@ -136,27 +87,23 @@ class TC_HSTAT_2_4(HSTATBase):
                     self.mark_all_remaining_steps_skipped(2)
                     return
 
-        self.step(2)
-        # TH sends command On to the On/Off cluster on the same endpoint as this cluster.
-        # Verify DUT responds w/ status SUCCESS(0x00)
+        self.step(2, "TH sends command On to the On/Off cluster on the same endpoint as this cluster.",
+                  expectation="Verify DUT responds w/ status SUCCESS(0x00)")
         await self.send_onoff_on_cmd_expect_success()
 
-        self.step(3)
-        # TH sends command SetSettings with the Mode field set to Humidifier if supported or otherwise to Dehumidifier
-        # Verify DUT responds w/ status SUCCESS(0x00)
+        self.step(3, "TH sends command SetSettings with the Mode field set to Humidifier if supported or otherwise to Dehumidifier",
+                  expectation="Verify DUT responds w/ status SUCCESS(0x00)")
         if self.humidifierFeatureSupported:
             await self.send_SetSettingsCommand_expect_success(mode=self.modeHumidifier)
         else:
             await self.send_SetSettingsCommand_expect_success(mode=self.modeDehumidifier)
 
-        self.step(4)
-        # TH sends command SetSettings with the Continuous, Sleep, and Optimal fields set to False
-        # Verify DUT responds w/ status SUCCESS(0x00)
+        self.step(4, "TH sends command SetSettings with the Continuous, Sleep, and Optimal fields set to False",
+                  expectation="Verify DUT responds w/ status SUCCESS(0x00)")
         await self.send_SetSettingsCommand_expect_success(continuous=False, sleep=False, optimal=False)
 
-        self.step(5)
-        # Individually subscribe to the attributes Continuous if supported, Sleep if supported, and Optimal if supported.
-        # This will receive updates when these attributes change value.
+        self.step(5, "Individually subscribe to the attributes Continuous if supported, Sleep if supported, and Optimal if supported.",
+                  expectation="This will receive updates when these attributes change value.")
         if self.continuousFeatureSupported:
             continuousSubscription = AttributeSubscriptionHandler(self.cluster, self.attributes.Continuous)
             await continuousSubscription.start(self.default_controller, self.dut_node_id, self.endpoint)
@@ -171,22 +118,19 @@ class TC_HSTAT_2_4(HSTATBase):
             optimalReportsReceived = []
 
         if self.continuousFeatureSupported:
-            self.step(6)
-            # TH sends command SetSettings with the Continuous field set to True.
-            # Verify DUT responds w/ status SUCCESS(0x00)
+            self.step(6, "TH sends command SetSettings with the Continuous field set to True.",
+                      expectation="Verify DUT responds w/ status SUCCESS(0x00)")
             await self.send_SetSettingsCommand_expect_success(continuous=True)
             # pyright: ignore[reportPossiblyUnboundVariable]
             continuousReportsReceived.append(continuousSubscription.wait_for_attribute_report().value)
 
-            self.step(7)
-            # TH reads from the DUT the Continuous attribute.
-            # Verify that the DUT response contains a value of True
+            self.step(7, "TH reads from the DUT the Continuous attribute.",
+                      expectation="Verify that the DUT response contains a value of True")
             dut_Continuous = await self.read_attribute_expect_success(attribute=self.attributes.Continuous)
             asserts.assert_true(dut_Continuous, "Continuous attribute was not True")
 
-            self.step(8)
-            # TH writes to the DUT the Continuous attribute with False.
-            # Verify DUT responds w/ status SUCCESS(0x00) Confirm 2 attribute reports for Continuous with the first having a value of True and the second having a value of False.
+            self.step(8, "TH writes to the DUT the Continuous attribute with False.",
+                      expectation="Verify DUT responds w/ status SUCCESS(0x00) Confirm 2 attribute reports for Continuous with the first having a value of True and the second having a value of False.")
             await self.write_single_attribute(attribute_value=self.attributes.Continuous(False), endpoint_id=self.endpoint, expect_success=True)
             # pyright: ignore[reportPossiblyUnboundVariable]
             continuousReportsReceived.append(continuousSubscription.wait_for_attribute_report().value)
@@ -201,22 +145,19 @@ class TC_HSTAT_2_4(HSTATBase):
             self.mark_step_range_skipped(6, 8)
 
         if self.attributes.Sleep.attribute_id in self.supported_attributes:
-            self.step(9)
-            # TH sends command SetSettings with the Sleep field set to True.
-            # Verify DUT responds w/ status SUCCESS(0x00)
+            self.step(9, "TH sends command SetSettings with the Sleep field set to True.",
+                      expectation="Verify DUT responds w/ status SUCCESS(0x00)")
             await self.send_SetSettingsCommand_expect_success(sleep=True)
             # pyright: ignore[reportPossiblyUnboundVariable]
             sleepReportsReceived.append(sleepSubscription.wait_for_attribute_report().value)
 
-            self.step(10)
-            # TH reads from the DUT the Sleep attribute.
-            # Verify that the DUT response contains a value of True
+            self.step(10, "TH reads from the DUT the Sleep attribute.",
+                      expectation="Verify that the DUT response contains a value of True")
             dut_Sleep = await self.read_attribute_expect_success(attribute=self.attributes.Sleep)
             asserts.assert_true(dut_Sleep, "Sleep attribute was not True")
 
-            self.step(11)
-            # TH writes to the DUT the Sleep attribute with False.
-            # Verify DUT responds w/ status SUCCESS(0x00) Confirm 2 attribute reports for Sleep with the first having a value of True and the second having a value of False.
+            self.step(11, "TH writes to the DUT the Sleep attribute with False.",
+                      expectation="Verify DUT responds w/ status SUCCESS(0x00) Confirm 2 attribute reports for Sleep with the first having a value of True and the second having a value of False.")
             await self.write_single_attribute(attribute_value=self.attributes.Sleep(False), endpoint_id=self.endpoint, expect_success=True)
             # pyright: ignore[reportPossiblyUnboundVariable]
             sleepReportsReceived.append(sleepSubscription.wait_for_attribute_report().value)
@@ -231,21 +172,19 @@ class TC_HSTAT_2_4(HSTATBase):
             self.mark_step_range_skipped(9, 11)
 
         if self.optimalFeatureSupported:
-            self.step(12)
-            # TH sends command SetSettings with the Optimal field set to True.
-            # Verify DUT responds w/ status SUCCESS(0x00)
+            self.step(12, "TH sends command SetSettings with the Optimal field set to True.",
+                      expectation="Verify DUT responds w/ status SUCCESS(0x00)")
             await self.send_SetSettingsCommand_expect_success(optimal=True)
+            # pyright: ignore[reportPossiblyUnboundVariable]
             optimalReportsReceived.append(optimalSubscription.wait_for_attribute_report().value)
 
-            self.step(13)
-            # TH reads from the DUT the Optimal attribute.
-            # Verify that the DUT response contains a value of True
+            self.step(13, "TH reads from the DUT the Optimal attribute.",
+                      expectation="Verify that the DUT response contains a value of True")
             dut_Optimal = await self.read_attribute_expect_success(attribute=self.attributes.Optimal)
             asserts.assert_true(dut_Optimal, "Optimal attribute was not True")
 
-            self.step(14)
-            # TH writes to the DUT the Optimal attribute with False.
-            # Verify DUT responds w/ status SUCCESS(0x00) Confirm 2 attribute reports for Optimal with the first having a value of True and the second having a value of False.
+            self.step(14, "TH writes to the DUT the Optimal attribute with False.",
+                      expectation="Verify DUT responds w/ status SUCCESS(0x00) Confirm 2 attribute reports for Optimal with the first having a value of True and the second having a value of False.")
             await self.write_single_attribute(attribute_value=self.attributes.Optimal(False), endpoint_id=self.endpoint, expect_success=True)
             # pyright: ignore[reportPossiblyUnboundVariable]
             optimalReportsReceived.append(optimalSubscription.wait_for_attribute_report().value)
@@ -260,55 +199,46 @@ class TC_HSTAT_2_4(HSTATBase):
             self.mark_step_range_skipped(12, 14)
 
         if (self.attributes.Continuous.attribute_id in self.supported_attributes) and (self.check_pics("HSTAT.S.M.ContinuousError")):
-            self.step(15)
-            # TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER for DisallowContinuous event.
-            # Verify DUT responds w/ status SUCCESS(0x00).
+            self.step(15, "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER for DisallowContinuous event.",
+                      expectation="Verify DUT responds w/ status SUCCESS(0x00).")
             await self.disallow_continuous_event()
 
-            self.step(16)
-            # TH sends command SetSettings with the Continuous field set to True
-            # Verify DUT responds w/ status INVALID_IN_STATE(0xcb)
+            self.step(16, "TH sends command SetSettings with the Continuous field set to True",
+                      expectation="Verify DUT responds w/ status INVALID_IN_STATE(0xcb)")
             await self.send_SetSettingsCommand_expect_error(continuous=True, error=Status.InvalidInState)
 
-            self.step(17)
-            # TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER for AllowContinuous event.
-            # Verify DUT responds w/ status SUCCESS(0x00).
+            self.step(17, "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER for AllowContinuous event.",
+                      expectation="Verify DUT responds w/ status SUCCESS(0x00).")
             await self.allow_continuous_event()
         else:
             self.mark_step_range_skipped(15, 17)
 
         if (self.attributes.Sleep.attribute_id in self.supported_attributes) and (self.check_pics("HSTAT.S.M.SleepError")):
-            self.step(18)
-            # TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER for DisallowSleep event.
-            # Verify DUT responds w/ status SUCCESS(0x00).
+            self.step(18, "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER for DisallowSleep event.",
+                      expectation="Verify DUT responds w/ status SUCCESS(0x00).")
             await self.disallow_sleep_event()
 
-            self.step(19)
-            # TH sends command SetSettings with the Sleep field set to True
-            # Verify DUT responds w/ status INVALID_IN_STATE(0xcb)
+            self.step(19, "TH sends command SetSettings with the Sleep field set to True",
+                      expectation="Verify DUT responds w/ status INVALID_IN_STATE(0xcb)")
             await self.send_SetSettingsCommand_expect_error(sleep=True, error=Status.InvalidInState)
 
-            self.step(20)
-            # TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER for AllowSleep event.
-            # Verify DUT responds w/ status SUCCESS(0x00).
+            self.step(20, "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER for AllowSleep event.",
+                      expectation="Verify DUT responds w/ status SUCCESS(0x00).")
             await self.allow_sleep_event()
         else:
             self.mark_step_range_skipped(18, 20)
 
         if (self.attributes.Optimal.attribute_id in self.supported_attributes) and (self.check_pics("HSTAT.S.M.OptimalError")):
-            self.step(21)
-            # TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER for DisallowOptimal event.
-            # Verify DUT responds w/ status SUCCESS(0x00).
+            self.step(21, "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER for DisallowOptimal event.",
+                      expectation="Verify DUT responds w/ status SUCCESS(0x00).")
             await self.disallow_optimal_event()
 
-            self.step(22)
-            # TH sends command SetSettings with the Optimal field set to True
-            # Verify DUT responds w/ status INVALID_IN_STATE(0xcb)
+            self.step(22, "TH sends command SetSettings with the Optimal field set to True",
+                      expectation="Verify DUT responds w/ status INVALID_IN_STATE(0xcb)")
             await self.send_SetSettingsCommand_expect_error(optimal=True, error=Status.InvalidInState)
 
-            self.step(23)
-            # TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER for AllowOptimal event.
-            # Verify DUT responds w/ status SUCCESS(0x00).
+            self.step(23, "TH sends TestEventTrigger command to General Diagnostics Cluster on Endpoint 0 with EnableKey field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER_KEY and EventTrigger field set to PIXIT.HSTAT.TEST_EVENT_TRIGGER for AllowOptimal event.",
+                      expectation="Verify DUT responds w/ status SUCCESS(0x00).")
             await self.allow_optimal_event()
         else:
             self.mark_step_range_skipped(21, 23)
