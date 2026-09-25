@@ -31,6 +31,7 @@
 #include <device/types/chime/Chime.h>
 #include <device/types/color-temperature-light/impl/LoggingColorTemperatureLight.h>
 #include <device/types/cooktop/impl/LoggingCooktop.h>
+#include <device/types/dehumidifier/impl/LoggingDehumidifier.h>
 #include <device/types/device-energy-management/EnergyManagement.h>
 #include <device/types/dimmable-light/impl/LoggingDimmableLight.h>
 #include <device/types/dimmable-plug-in-unit/DimmablePlugInUnit.h>
@@ -400,6 +401,13 @@ private:
             RegisterCreator("cooktop", [this]() {
                 VerifyOrDie(mContext.has_value());
                 return MakeDevice<LoggingCooktop>(mContext->timerDelegate);
+            });
+        }
+        if constexpr (ALL_DEVICES_ENABLE_DEHUMIDIFIER)
+        {
+            RegisterCreator("dehumidifier", [this]() {
+                VerifyOrDie(mContext.has_value());
+                return MakeDevice<LoggingDehumidifier>(mContext->timerDelegate);
             });
         }
         if constexpr (ALL_DEVICES_ENABLE_DEVICE_ENERGY_MANAGEMENT)

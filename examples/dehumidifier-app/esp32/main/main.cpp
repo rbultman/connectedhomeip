@@ -48,6 +48,16 @@
 #include <platform/ESP32/ESP32FactoryDataProvider.h>
 #endif
 
+#include <esp_console.h>
+#include <platform/KeyValueStoreManager.h>
+
+#if CONFIG_ENABLE_CHIP_SHELL
+#include "shell_extension/launch.h"
+#include <lib/shell/Engine.h>
+#include <lib/shell/commands/WiFi.h>
+#include <lib/shell/streamer.h>
+#endif
+
 #if CONFIG_ENABLE_ESP32_DEVICE_INFO_PROVIDER
 #include <platform/ESP32/ESP32DeviceInfoProvider.h>
 #else
@@ -80,6 +90,76 @@ DeviceLayer::ESP32DeviceInfoProvider gExampleDeviceInfoProvider;
 #else
 DeviceLayer::DeviceInfoProviderImpl gExampleDeviceInfoProvider;
 #endif
+
+#if CHIP_DEVICE_CONFIG_ENABLE_WIFI
+static const char * CleanArg(char * str)
+{
+    if (str == nullptr)
+    {
+        return "";
+    }
+    size_t len = strlen(str);
+    if (len >= 2 && ((str[0] == '"' && str[len - 1] == '"') || (str[0] == '\'' && str[len - 1] == '\'')))
+    {
+        str[len - 1] = '\0';
+        return str + 1;
+    }
+    return str;
+}
+
+static CHIP_ERROR DoWifiConnect(const char * ssid, const char * password)
+{
+    if (strlen(ssid) == 0)
+    {
+        ESP_LOGE(TAG, "SSID cannot be empty");
+        return CHIP_ERROR_INVALID_ARGUMENT;
+    }
+
+    ESP_LOGI(TAG, "Connecting to Wi-Fi SSID '%s'...", ssid);
+    chip::DeviceLayer::PersistedStorage::KeyValueStoreMgr().Delete("wifi-ssid");
+    chip::DeviceLayer::PersistedStorage::KeyValueStoreMgr().Delete("wifi-pass");
+
+    CHIP_ERROR err = sWiFiDriver.ConnectWiFiNetwork(ssid, static_cast<uint8_t>(strlen(ssid)), password,
+                                                    static_cast<uint8_t>(strlen(password)));
+    if (err != CHIP_NO_ERROR)
+    {
+        ESP_LOGE(TAG, "ConnectWiFiNetwork failed: %" CHIP_ERROR_FORMAT, err.Format());
+        return err;
+    }
+
+    ESP_LOGI(TAG, "Wi-Fi station connecting...");
+    return CHIP_NO_ERROR;
+}
+
+#if CONFIG_ENABLE_CHIP_SHELL
+static int ConsoleConnectHandler(int argc, char ** argv)
+{
+    if (argc < 2)
+    {
+        printf("Usage: connect <ssid> [<password>]\r\n");
+        return 1;
+    }
+    const char * ssid     = CleanArg(argv[1]);
+    const char * password = (argc > 2) ? CleanArg(argv[2]) : "";
+
+    CHIP_ERROR err = DoWifiConnect(ssid, password);
+    return (err == CHIP_NO_ERROR) ? 0 : 1;
+}
+
+static CHIP_ERROR ShellConnectHandler(int argc, char ** argv)
+{
+    if (argc < 1)
+    {
+        chip::Shell::streamer_printf(chip::Shell::streamer_get(), "Usage: matter connect <ssid> [<password>]\r\n");
+        return CHIP_ERROR_INVALID_ARGUMENT;
+    }
+    const char * ssid     = CleanArg(argv[0]);
+    const char * password = (argc > 1) ? CleanArg(argv[1]) : "";
+
+    return DoWifiConnect(ssid, password);
+}
+#endif // CONFIG_ENABLE_CHIP_SHELL
+#endif // CHIP_DEVICE_CONFIG_ENABLE_WIFI
 
 static void DeviceEventHandler(const ChipDeviceEvent * event, intptr_t arg)
 {
@@ -154,6 +234,15 @@ void InitServer(intptr_t context)
         return;
     }
 
+#if CHIP_DEVICE_CONFIG_ENABLE_WIFI
+    chip::DeviceLayer::PersistedStorage::KeyValueStoreMgr().Delete("wifi-ssid");
+    chip::DeviceLayer::PersistedStorage::KeyValueStoreMgr().Delete("wifi-pass");
+    sWiFiDriver.Init(nullptr);
+#if CONFIG_ENABLE_CHIP_SHELL
+    chip::Shell::SetWiFiDriver(&sWiFiDriver);
+#endif
+#endif
+
     ConfigurationMgr().LogDeviceConfig();
     PrintOnboardingCodes(RendezvousInformationFlag::kBLE);
 }
@@ -182,6 +271,24 @@ extern "C" void app_main()
         return;
     }
 #endif
+
+#if CONFIG_ENABLE_CHIP_SHELL
+    chip::LaunchShell();
+#if CHIP_DEVICE_CONFIG_ENABLE_WIFI
+    esp_console_cmd_t connectCmd = {
+        .command = "connect",
+        .help    = "Connect to Wi-Fi: connect <ssid> [<password>]",
+        .hint    = nullptr,
+        .func    = &ConsoleConnectHandler,
+    };
+    esp_console_cmd_register(&connectCmd);
+
+    static constexpr chip::Shell::Command sConnectCommand = {
+        &ShellConnectHandler, "connect", "Connect to Wi-Fi: matter connect <ssid> [<password>]"
+    };
+    chip::Shell::Engine::Root().RegisterCommands(&sConnectCommand, 1);
+#endif // CHIP_DEVICE_CONFIG_ENABLE_WIFI
+#endif // CONFIG_ENABLE_CHIP_SHELL
 
     DeviceLayer::SetDeviceInfoProvider(&gExampleDeviceInfoProvider);
 

@@ -52,6 +52,7 @@ _ALL_DEVICES_APP_DEVICES = [
     'color-temperature-light',
     'contact-sensor',
     'cooktop',
+    'dehumidifier',
     'device-energy-management',
     'dimmable-light',
     'dimmable-plug-in-unit',
@@ -307,6 +308,7 @@ def BuildEsp32Target():
         TargetPart('c3devkit', board=Esp32Board.C3DevKit),
         TargetPart('devkitc', board=Esp32Board.DevKitC),
         TargetPart('p4functionev', board=Esp32Board.P4FunctionEV),
+        TargetPart('s3devkit', board=Esp32Board.S3DevKit),
         TargetPart('qemu', board=Esp32Board.QEMU).OnlyIfRe('-tests'),
     ])
 

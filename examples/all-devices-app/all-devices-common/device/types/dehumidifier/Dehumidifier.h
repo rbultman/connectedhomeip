@@ -23,12 +23,45 @@
 #include <app/clusters/on-off-server/OnOffCluster.h>
 #include <app/clusters/on-off-server/OnOffDelegate.h>
 #include <app/clusters/relative-humidity-measurement-server/RelativeHumidityMeasurementCluster.h>
+#include <clusters/OnOff/Metadata.h>
 #include <data-model-providers/codedriven/CodeDrivenDataModelProvider.h>
 #include <device/api/SingleEndpoint.h>
 #include <lib/support/TimerDelegate.h>
 
 namespace chip {
 namespace app {
+
+/// Specialized OnOffCluster for Dehumidifier that only supports On and Off commands (no Toggle).
+class DehumidifierOnOffCluster : public Clusters::OnOffCluster
+{
+public:
+    using Clusters::OnOffCluster::OnOffCluster;
+
+    CHIP_ERROR AcceptedCommands(const ConcreteClusterPath & path,
+                                ReadOnlyBufferBuilder<DataModel::AcceptedCommandEntry> & builder) override
+    {
+        static constexpr DataModel::AcceptedCommandEntry kAcceptedCommands[] = {
+            Clusters::OnOff::Commands::Off::kMetadataEntry,
+            Clusters::OnOff::Commands::On::kMetadataEntry,
+        };
+        return builder.ReferenceExisting(kAcceptedCommands);
+    }
+
+    std::optional<DataModel::ActionReturnStatus> InvokeCommand(const DataModel::InvokeRequest & request,
+                                                               chip::TLV::TLVReader & input_arguments,
+                                                               CommandHandler * handler) override
+    {
+        switch (request.path.mCommandId)
+        {
+        case Clusters::OnOff::Commands::Off::Id:
+            return SetOnOff(false);
+        case Clusters::OnOff::Commands::On::Id:
+            return SetOnOff(true);
+        default:
+            return Protocols::InteractionModel::Status::UnsupportedCommand;
+        }
+    }
+};
 
 class Dehumidifier : public SingleEndpoint,
                      public Clusters::OnOffDelegate,
@@ -97,7 +130,7 @@ private:
     bool mIsOn = true;
 
     LazyRegisteredServerCluster<Clusters::IdentifyCluster> mIdentifyCluster;
-    LazyRegisteredServerCluster<Clusters::OnOffCluster> mOnOffCluster;
+    LazyRegisteredServerCluster<DehumidifierOnOffCluster> mOnOffCluster;
     LazyRegisteredServerCluster<Clusters::FanControlCluster> mFanControlCluster;
     LazyRegisteredServerCluster<Clusters::HumidistatCluster> mHumidistatCluster;
     LazyRegisteredServerCluster<Clusters::RelativeHumidityMeasurementCluster> mRelativeHumidityMeasurementCluster;

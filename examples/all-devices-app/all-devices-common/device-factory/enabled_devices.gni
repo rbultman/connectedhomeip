@@ -91,6 +91,10 @@ _available_devices = [
     "COOKTOP",
   ],
   [
+    "dehumidifier",
+    "DEHUMIDIFIER",
+  ],
+  [
     "device-energy-management",
     "DEVICE_ENERGY_MANAGEMENT",
   ],

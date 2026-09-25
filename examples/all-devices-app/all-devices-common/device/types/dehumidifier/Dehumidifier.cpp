@@ -63,6 +63,7 @@ CHIP_ERROR Dehumidifier::Register(chip::EndpointId endpoint, CodeDrivenDataModel
     // 3. Fan Control Cluster (MultiSpeed feature only)
     FanControlCluster::Config fanConfig(endpoint, mExternalFanDelegate ? *mExternalFanDelegate : *this);
     fanConfig.WithSpeedMax(10);
+    fanConfig.WithFanModeSequence(FanControl::FanModeSequenceEnum::kOffLowMedHigh);
     mFanControlCluster.Create(fanConfig);
     ReturnErrorOnFailure(provider.AddCluster(mFanControlCluster.Registration()));
 
@@ -77,8 +78,8 @@ CHIP_ERROR Dehumidifier::Register(chip::EndpointId endpoint, CodeDrivenDataModel
     HumidistatCluster::StartupConfiguration hstatConfig;
     hstatConfig.mode         = Humidistat::ModeEnum::kDehumidifier;
     hstatConfig.systemState  = Humidistat::SystemStateEnum::kDehumidifying;
-    hstatConfig.minSetpoint  = 30;
-    hstatConfig.maxSetpoint  = 80;
+    hstatConfig.minSetpoint  = 10;
+    hstatConfig.maxSetpoint  = 90;
     hstatConfig.step         = 5;
     hstatConfig.userSetpoint = 50;
     hstatConfig.continuous   = false;
@@ -89,8 +90,8 @@ CHIP_ERROR Dehumidifier::Register(chip::EndpointId endpoint, CodeDrivenDataModel
 
     // 5. Relative Humidity Measurement Cluster (Mandatory attributes only)
     RelativeHumidityMeasurementCluster::Config rhConfig;
-    rhConfig.minMeasuredValue.SetNonNull(0);
-    rhConfig.maxMeasuredValue.SetNonNull(10000);
+    rhConfig.minMeasuredValue.SetNonNull(1000);
+    rhConfig.maxMeasuredValue.SetNonNull(9000);
     mRelativeHumidityMeasurementCluster.Create(endpoint, rhConfig);
     ReturnErrorOnFailure(
         mRelativeHumidityMeasurementCluster.Cluster().SetMeasuredValue(DataModel::MakeNullable(static_cast<uint16_t>(5000))));
@@ -140,6 +141,28 @@ void Dehumidifier::OnOffStartup(bool on)
     {
         mExternalOnOffDelegate->OnOffStartup(on);
     }
+
+    if (mFanControlCluster.IsConstructed())
+    {
+        if (!on)
+        {
+            mFanControlCluster.Cluster().SetPercentCurrent(0);
+            mFanControlCluster.Cluster().SetSpeedCurrent(0);
+        }
+        else
+        {
+            const auto percentSetting = mFanControlCluster.Cluster().GetPercentSetting();
+            if (!percentSetting.IsNull())
+            {
+                mFanControlCluster.Cluster().SetPercentCurrent(percentSetting.Value());
+            }
+            const auto speedSetting = mFanControlCluster.Cluster().GetSpeedSetting();
+            if (!speedSetting.IsNull())
+            {
+                mFanControlCluster.Cluster().SetSpeedCurrent(speedSetting.Value());
+            }
+        }
+    }
 }
 
 void Dehumidifier::OnOnOffChanged(bool on)
@@ -148,6 +171,28 @@ void Dehumidifier::OnOnOffChanged(bool on)
     if (mExternalOnOffDelegate != nullptr)
     {
         mExternalOnOffDelegate->OnOnOffChanged(on);
+    }
+
+    if (mFanControlCluster.IsConstructed())
+    {
+        if (!on)
+        {
+            mFanControlCluster.Cluster().SetPercentCurrent(0);
+            mFanControlCluster.Cluster().SetSpeedCurrent(0);
+        }
+        else
+        {
+            const auto percentSetting = mFanControlCluster.Cluster().GetPercentSetting();
+            if (!percentSetting.IsNull())
+            {
+                mFanControlCluster.Cluster().SetPercentCurrent(percentSetting.Value());
+            }
+            const auto speedSetting = mFanControlCluster.Cluster().GetSpeedSetting();
+            if (!speedSetting.IsNull())
+            {
+                mFanControlCluster.Cluster().SetSpeedCurrent(speedSetting.Value());
+            }
+        }
     }
 
     if (mHumidistatCluster.IsConstructed())
@@ -244,6 +289,26 @@ void Dehumidifier::OnFanDriveStateChanged(const FanControl::FanDriveState & newS
     if (mExternalFanDelegate != nullptr)
     {
         mExternalFanDelegate->OnFanDriveStateChanged(newState);
+    }
+
+    if (mFanControlCluster.IsConstructed())
+    {
+        if (!mIsOn)
+        {
+            mFanControlCluster.Cluster().SetPercentCurrent(0);
+            mFanControlCluster.Cluster().SetSpeedCurrent(0);
+        }
+        else
+        {
+            if (!newState.percentSetting.IsNull())
+            {
+                mFanControlCluster.Cluster().SetPercentCurrent(newState.percentSetting.Value());
+            }
+            if (!newState.speedSetting.IsNull())
+            {
+                mFanControlCluster.Cluster().SetSpeedCurrent(newState.speedSetting.Value());
+            }
+        }
     }
 }
 

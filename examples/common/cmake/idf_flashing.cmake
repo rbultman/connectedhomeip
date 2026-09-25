@@ -81,7 +81,7 @@ macro(flashing_script)
             --partition "${partition_table}"
             --use-partition-file "${build_dir}/${partition_table}"
             --use-parttool ${idf_path}/components/partition_table/parttool.py
-            --use-sdkconfig ${project_path}/sdkconfig
+            --use-sdkconfig ${sdkconfig}
     WORKING_DIRECTORY ${build_dir}
     DEPENDS "${build_dir}/${board_firmware_utils}"
             "${build_dir}/${partition_table}"

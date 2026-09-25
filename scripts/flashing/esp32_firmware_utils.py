@@ -92,6 +92,7 @@ ESP32_OPTIONS = {
             },
             'command': [
                 {'option': 'esptool'},
+                {'optional': 'chip'},
                 {'optional': 'port'},
                 {'optional': 'baud'},
                 {'optional': 'before'},
@@ -145,7 +146,7 @@ ESP32_OPTIONS = {
         # Device configuration options.
         'chip': {
             'help': 'Target chip type',
-            'default': 'esp32',
+            'default': None,
             'argparse': {
                 'metavar': 'CHIP'
             },
@@ -228,7 +229,7 @@ ESP32_OPTIONS = {
         },
         'bootloader_offset': {
             'help': 'Bootloader offset',
-            'default': '0x1000',
+            'default': None,
             'argparse': {
                 'metavar': 'OFFSET'
             },
@@ -417,7 +418,10 @@ class Flasher(firmware_utils.Flasher):
             # Collect the flashable items.
             flash = []
             if bootloader:
-                flash += [self.option.bootloader_offset, bootloader]
+                offset = self.option.bootloader_offset
+                if offset is None:
+                    offset = '0x0' if self.option.chip in ('esp32s3', 'esp32c3', 'esp32c2', 'esp32c6', 'esp32h2') else '0x1000'
+                flash += [offset, bootloader]
             if application:
                 offset = self.option.application_offset
                 if offset is None:

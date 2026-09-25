@@ -25,13 +25,15 @@ set(PRIV_INCLUDE_DIRS_LIST
     "${CMAKE_CURRENT_LIST_DIR}/../../include"
     "${ALL_DEVICES_COMMON_DIR}"
     "${CHIP_ROOT}/examples/providers"
+    "${CHIP_ROOT}/examples/platform/esp32"
+    "${CHIP_ROOT}/examples/platform/esp32/shell_extension"
 )
 
 set(APP_TOPLEVEL_EXTRA_SRCS
     "${CHIP_ROOT}/src/app/SafeAttributePersistenceProvider.cpp"
     "${CHIP_ROOT}/src/app/StorageDelegateWrapper.cpp"
     "${DEHUMIDIFIER_COMMON_DIR}/DehumidifierManager.cpp"
-    "${ALL_DEVICES_COMMON_DIR}/device/api/DeviceInterface.cpp"
+    "${ALL_DEVICES_COMMON_DIR}/device/api/Interface.cpp"
     "${ALL_DEVICES_COMMON_DIR}/device/api/SingleEndpoint.cpp"
     "${ALL_DEVICES_COMMON_DIR}/device/types/dehumidifier/Dehumidifier.cpp"
     "${ALL_DEVICES_COMMON_DIR}/device/types/root-node/RootNode.cpp"
@@ -40,6 +42,7 @@ set(APP_TOPLEVEL_EXTRA_SRCS
 set(SRC_DIRS_LIST
     "${CMAKE_CURRENT_LIST_DIR}"
     "${CHIP_ROOT}/examples/providers"
+    "${CHIP_ROOT}/examples/platform/esp32/shell_extension"
     "${CHIP_ROOT}/src/data-model-providers/codedriven"
     "${CHIP_ROOT}/src/data-model-providers/codedriven/endpoint"
     "${CHIP_ROOT}/src/app/server"

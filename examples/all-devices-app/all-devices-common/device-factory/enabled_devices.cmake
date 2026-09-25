@@ -48,6 +48,8 @@ set(ALL_DEVICES_DEVICE_SOURCES
     "${ALL_DEVICES_COMMON_DIR}/device/types/color-temperature-light/impl/LoggingColorTemperatureLight.cpp"
     "${ALL_DEVICES_COMMON_DIR}/device/types/cooktop/Cooktop.cpp"
     "${ALL_DEVICES_COMMON_DIR}/device/types/cooktop/impl/LoggingCooktop.cpp"
+    "${ALL_DEVICES_COMMON_DIR}/device/types/dehumidifier/Dehumidifier.cpp"
+    "${ALL_DEVICES_COMMON_DIR}/device/types/dehumidifier/impl/LoggingDehumidifier.cpp"
     "${ALL_DEVICES_COMMON_DIR}/device/types/device-energy-management/EnergyManagement.cpp"
     "${ALL_DEVICES_COMMON_DIR}/device/types/dimmable-light/DimmableLight.cpp"
     "${ALL_DEVICES_COMMON_DIR}/device/types/dimmable-light/impl/LoggingDimmableLight.cpp"
@@ -168,6 +170,7 @@ foreach(_key
         commissioning-proxy
         contact-sensor
         cooktop
+        dehumidifier
         device-energy-management
         dimmable-light
         dimmable-plug-in-unit
