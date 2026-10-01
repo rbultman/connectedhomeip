@@ -1,4 +1,4 @@
-# Matter Clusters Implementation Status (159 total)
+# Matter Clusters Implementation Status (160 total)
 
 **Updated as of**: 2026-06-25 (Matter Specification SHA:
 `5a31ae2acb487bea09286243ccb5ad4ca9d3ef08`)
@@ -110,8 +110,8 @@ To update or validate this list manually, follow these steps:
 | 64        | Groupcast                                                  | 101 (0x0065)  | Yes                | Yes                 |                                       |
 | 65        | Groups                                                     | 4 (0x0004)    | Yes                | Yes                 |                                       |
 | 66        | HEPA Filter Monitoring                                     | 113 (0x0071)  | Yes                | No                  | Alias of Resource Monitoring          |
-| 67        | Humidistat                                                 | 517 (0x0205)  | Yes                | No                  |                                       |
-| 68        | ICD Management                                             | 70 (0x0046)   | Yes                | No                  |                                       |
+| 67        | Humidistat                                                 | 517 (0x0205)  | Yes                | Yes                 |                                       |
+| 68        | ICD Management                                             | 70 (0x0046)   | Yes                | Yes                 |                                       |
 | 69        | Identify                                                   | 3 (0x0003)    | Yes                | Yes                 |                                       |
 | 70        | Illuminance Measurement                                    | 1024 (0x0400) | Yes                | Yes                 |                                       |
 | 71        | Joint Fabric Administrator                                 | 1875 (0x0753) | No                 | No                  |                                       |
@@ -179,9 +179,9 @@ To update or validate this list manually, follow these steps:
 | 133       | Temperature Control                                        | 86 (0x0056)   | Yes                | Yes                 |                                       |
 | 134       | Temperature Controlled Cabinet Topology                    | 75 (0x004B)   | No                 | No                  |                                       |
 | 135       | Temperature Measurement                                    | 1026 (0x0402) | Yes                | Yes                 |                                       |
-| 136       | Thermostat                                                 | 513 (0x0201)  | No                 | No                  |                                       |
+| 136       | Thermostat                                                 | 513 (0x0201)  | Yes                | Yes                 | Room Air Conditioner                  |
 | 137       | Thermostat Mode                                            | 99 (0x0063)   | Yes                | No                  | Instance of Mode Base                 |
-| 138       | Thermostat User Interface Configuration                    | 516 (0x0204)  | No                 | No                  |                                       |
+| 138       | Thermostat User Interface Configuration                    | 516 (0x0204)  | Yes                | Yes                 | Room Air Conditioner                  |
 | 139       | Thread Border Router Diagnostics                           | 1108 (0x0454) | No                 | No                  |                                       |
 | 140       | Thread Border Router Management                            | 1106 (0x0452) | Yes                | Yes                 |                                       |
 | 141       | Thread Network Diagnostics                                 | 53 (0x0035)   | Yes                | Yes                 |                                       |
@@ -203,4 +203,5 @@ To update or validate this list manually, follow these steps:
 | 157       | Wi-Fi Network Management                                   | 1105 (0x0451) | Yes                | Yes                 |                                       |
 | 158       | Window Covering                                            | 258 (0x0102)  | No                 | No                  |                                       |
 | 159       | Zone Management                                            | 1360 (0x0550) | Yes                | No                  |                                       |
-| **Total** | **159**                                                    |               | **104**            | **67**              |                                       |
+| 160       | Smoke Concentration Measurement                            | 1076 (0x0434) | Yes                | Yes                 | Instance of Concentration Measurement |
+| **Total** | **160**                                                    |               | **108**            | **73**              |                                       |

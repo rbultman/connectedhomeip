@@ -28,6 +28,7 @@ log = logging.getLogger(__name__)
 class Esp32Board(Enum):
     DevKitC = auto()
     M5Stack = auto()
+    M5StackCoreS3 = auto()
     C3DevKit = auto()
     S3DevKit = auto()
     P4FunctionEV = auto()
@@ -137,6 +138,8 @@ class Esp32App(Enum):
             return self in {Esp32App.ALL_CLUSTERS, Esp32App.ALL_CLUSTERS_MINIMAL, Esp32App.DEHUMIDIFIER}
         if board == Esp32Board.P4FunctionEV:
             return self == Esp32App.ALL_CLUSTERS
+        if board == Esp32Board.M5StackCoreS3:
+            return self == Esp32App.ALL_DEVICES
         return (board in {Esp32Board.M5Stack, Esp32Board.DevKitC}) and (self != Esp32App.TESTS)
 
 
@@ -149,18 +152,20 @@ def DefaultsFileName(board: Esp32Board, app: Esp32App, enable_rpcs: bool):
                         Esp32App.TEMPERATURE_MEASUREMENT}
     if app == Esp32App.TESTS:
         return 'sdkconfig_qemu.defaults'
-    if app not in rpc_enabled_apps:
-        return 'sdkconfig.defaults'
 
-    rpc = "_rpc" if enable_rpcs else ""
+    rpc = "_rpc" if enable_rpcs and (app in rpc_enabled_apps) else ""
     if board in {Esp32Board.DevKitC, Esp32Board.C3DevKit, Esp32Board.S3DevKit, Esp32Board.P4FunctionEV}:
         return f'sdkconfig{rpc}.defaults'
+    if board == Esp32Board.M5StackCoreS3:
+        # CoreS3 only builds ALL_DEVICES, which has no RPC variant.
+        return 'sdkconfig_m5stack_cores3.defaults'
     if board == Esp32Board.M5Stack:
         # a subset of apps have m5stack specific configurations. However others
         # just compile for the same devices as aDevKitC
         specific_apps = {
             Esp32App.ALL_CLUSTERS,
             Esp32App.ALL_CLUSTERS_MINIMAL,
+            Esp32App.ALL_DEVICES,
             Esp32App.LIGHT,
             Esp32App.OTA_REQUESTOR,
         }
@@ -209,6 +214,8 @@ class Esp32Builder(Builder):
             return 'esp32s3'
         if self.board == Esp32Board.P4FunctionEV:
             return 'esp32p4'
+        if self.board == Esp32Board.M5StackCoreS3:
+            return 'esp32s3'
         return 'esp32'
 
     @property
